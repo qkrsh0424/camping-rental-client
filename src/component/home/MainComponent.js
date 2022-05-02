@@ -13,6 +13,7 @@ import CommonModalComponent from '../common/CommonModalComponent';
 import { handlingAreaDataConnect } from '../../data_connect/handlingAreaDataConnect';
 import { orderDataConnect } from '../../data_connect/orderDataConnect';
 import BannerComponent from './BannerComponent';
+import { useBackdropHook, BackdropHookComponent } from '../../hooks/backdrop/useBackdropHook';
 
 const Container = styled.div`
     margin-bottom: 150px;
@@ -52,6 +53,11 @@ const HomeMainComponent = (props) => {
     const categoryId = query.categoryId;
 
     const [cartList, setCartList] = useLocalStorage('cart-list', []);
+    const {
+        open: backdropOpen,
+        onActionOpen: onActionOpenBackdrop,
+        onActionClose: onActionCloseBackdrop
+    } = useBackdropHook();
 
     const [categoryListState, dispatchCategoryListState] = useReducer(categoryListStateReducer, initialCategoryListState);
     const [itemListState, dispatchItemListState] = useReducer(itemListStateReducer, initialItemListState);
@@ -162,7 +168,9 @@ const HomeMainComponent = (props) => {
                 setCartList([]);
             },
             _onOrderSubmit: async function (params) {
-                __handleDataConnect().createOrder(params);
+                onActionOpenBackdrop();
+                await __handleDataConnect().createOrder(params);
+                onActionCloseBackdrop();
             }
         }
     }
@@ -202,6 +210,10 @@ const HomeMainComponent = (props) => {
                     _onDeleteCartItemAll={() => __handleEventControl()._onDeleteCartItemAll()}
                 ></CartModalComponent>
             </CommonModalComponent>
+            {/* backdrop */}
+            <BackdropHookComponent
+                open={backdropOpen}
+            />
         </>
     );
 }
