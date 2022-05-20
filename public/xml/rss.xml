@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+    <channel>
+        <title>Campal | 캠팔</title>
+        <link>http://www.campal.co.kr/</link>
+        <description>
+            캠팔을 통해서 저렴하게 캠핑 장비를 대여 해보세요. 캠핑 장비 렌탈 플랫폼 Campal.
+        </description>
+        <item>
+            <title>메인</title>
+            <link>http://www.campal.co.kr/</link>
+            <description>
+                캠팔을 통해서 저렴하게 캠핑 장비를 대여 해보세요. 캠핑 장비 렌탈 플랫폼 Campal.
+            </description>
+            <pubDate>2022-05-13T00:00:00+00:00</pubDate>
+            <guid>http://www.campal.co.kr/</guid>
+        </item>
+    </channel>
+</rss>
