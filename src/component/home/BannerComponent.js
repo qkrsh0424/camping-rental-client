@@ -33,7 +33,7 @@ const BannerComponent = () => {
             <Container>
                 <ImageBox>
                     <div className="image-figure">
-                        <img className='image-el' src='/assets/banner/home_banner1.png'></img>
+                        <img className='image-el' src='/assets/banner/home_banner2.png'></img>
                     </div>
                 </ImageBox>
             </Container>
