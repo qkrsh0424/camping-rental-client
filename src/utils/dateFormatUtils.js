@@ -1,5 +1,21 @@
 import moment from "moment";
 
+const isValidDateObject = (date) => {
+    if (Object.prototype.toString.call(date) === "[object Date]") {
+        // it is a date
+        if (isNaN(date)) { // d.getTime() or d.valueOf() will also work
+            // date object is not valid
+            return false
+        } else {
+            // date object is valid
+            return true;
+        }
+    } else {
+        // not a date object
+        return false;
+    }
+}
+
 const dateFormatUtils = () => {
     return {
         getDiffDate: function (startDate, endDate) {
@@ -25,6 +41,13 @@ const dateFormatUtils = () => {
         dateToYYMMDD: function (date) {
             var d = new Date(date)
             return moment(d).format("YY.MM.DD");
+        },
+        dateToYYMMDDHHmmss: function (idate, invalidReturn) {
+            var date = new Date(idate || '');
+            if (!isValidDateObject(date)) {
+                return invalidReturn;
+            }
+            return moment(date).format("YY.MM.DD HH:mm:ss");
         }
     }
 }

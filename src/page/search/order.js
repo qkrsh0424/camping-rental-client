@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import NavbarMain from '../../component/navbar/NavbarMain';
-import MainComponent from '../../component/search/order/MainComponent';
+import MainComponent from '../../component/search/order';
 
 const Container = styled.div`
 

@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useReducer, useState } from 'react';
 import styled from 'styled-components';
 import { dateFormatUtils } from '../../../utils/dateFormatUtils';
 import { numberFormatHandler } from '../../../utils/numberFormatHandler';
+import SingleBlockButton from '../../module/button/SingleBlockButton';
+import CommonModalComponent from '../../module/modal/CommonModalComponent';
 
 const Container = styled.div`
 
@@ -40,9 +42,6 @@ const TableBox = styled.div`
     }
 
     table tbody tr{
-        &:hover{
-            background:#9352bd30;
-        }
     }
 
     table tbody {
@@ -51,9 +50,6 @@ const TableBox = styled.div`
 
     table tbody td{
         padding:5px 0;
-        &:hover{
-            background:#9352bd40;
-        }
     }
 
     @media only screen and (max-width:992px){
@@ -63,6 +59,33 @@ const TableBox = styled.div`
 `;
 
 const OrderListComponent = (props) => {
+    const [orderStatus, dispatchOrderStatus] = useReducer(orderStatusReducer, initialOrderStatus);
+    const [orderStatusModalOpen, setOrderStatusModalOpen] = useState(false);
+
+    const __orderStatus = {
+        action: {
+            openModal: (orderInfoId) => {
+                console.log(orderInfoId);
+                dispatchOrderStatus({
+                    type: 'SET_DATA',
+                    payload: {
+                        orderInfoId: orderInfoId,
+                        status: 'reserved',
+                        sms: '',
+                        smsFlag: false
+                    }
+                })
+                setOrderStatusModalOpen(true);
+            },
+            closeModal: () => {
+                dispatchOrderStatus({
+                    type: 'CLEAR'
+                });
+                setOrderStatusModalOpen(false);
+            }
+        }
+    }
+
     return (
         <>
             <Container>
@@ -70,7 +93,8 @@ const OrderListComponent = (props) => {
                     <TableBox>
                         <table>
                             <colgroup>
-                                <col width="50px" />
+                                <col width="100px" />
+                                <col width="250px" />
                                 <col width="250px" />
                                 <col width="250px" />
                                 <col width="500px" />
@@ -81,7 +105,8 @@ const OrderListComponent = (props) => {
                             </colgroup>
                             <thead>
                                 <tr>
-                                    <th>#</th>
+                                    <th>등록일</th>
+                                    <th>상태</th>
                                     <th>주문자</th>
                                     <th>연락처</th>
                                     <th>[상품][가격][개수][박][할인]</th>
@@ -96,7 +121,15 @@ const OrderListComponent = (props) => {
                                     let nights = dateFormatUtils().getDiffDate(r.orderInfo.pickupDate, r.orderInfo.returnDate);
                                     return (
                                         <tr key={r.orderInfo.id}>
-                                            <td>{index + 1}</td>
+                                            <td>{dateFormatUtils().dateToYYMMDDHHmmss(r.orderInfo.createdAt, 'Invalid Date')}</td>
+                                            <td>
+                                                <SingleBlockButton
+                                                    type='button'
+                                                    onClick={() => __orderStatus.action.openModal(r.orderInfo.id)}
+                                                >
+                                                    신규 주문
+                                                </SingleBlockButton>
+                                            </td>
                                             <td>{r.orderInfo.orderer}</td>
                                             <td>{r.orderInfo.ordererPhoneNumber}</td>
                                             <td style={{ textAlign: 'left' }}>
@@ -122,7 +155,98 @@ const OrderListComponent = (props) => {
                     </TableBox>
                 </TableWrapper>
             </Container>
+
+            {/* Modal */}
+            {orderStatusModalOpen && orderStatus &&
+                <CommonModalComponent
+                    open={orderStatusModalOpen}
+                    onClose={__orderStatus.action.closeModal}
+                >
+                    <div
+                        style={{
+                            padding: '10px',
+                            borderBottom: '1px solid #e0e0e0',
+                            fontSize: '18px',
+                            fontWeight: '500'
+                        }}
+                    >
+                        상태 변경
+                    </div>
+                    <div
+                        style={{
+                            padding: '0 10px'
+                        }}
+                    >
+                        <SingleBlockButton
+                            type='button'
+                            style={{
+                                background: orderStatus.status === 'new' && '#00B8BA',
+                                color: orderStatus.status === 'new' && 'white'
+                            }}
+                        >
+                            신규 주문
+                        </SingleBlockButton>
+                        <SingleBlockButton
+                            type='button'
+                            style={{
+                                background: orderStatus.status === 'reserving' && '#00B8BA',
+                                color: orderStatus.status === 'reserving' && 'white'
+                            }}
+                        >
+                            예약 확인
+                        </SingleBlockButton>
+                        <SingleBlockButton
+                            type='button'
+                            style={{
+                                background: orderStatus.status === 'reserved' && '#00B8BA',
+                                color: orderStatus.status === 'reserved' && 'white'
+                            }}
+                        >
+                            예약 완료
+                        </SingleBlockButton>
+                        <SingleBlockButton
+                            type='button'
+                            style={{
+                                background: orderStatus.status === 'picked' && '#00B8BA',
+                                color: orderStatus.status === 'picked' && 'white'
+                            }}
+                        >
+                            픽업 완료
+                        </SingleBlockButton>
+                        <SingleBlockButton
+                            type='button'
+                            style={{
+                                background: orderStatus.status === 'returned' && '#00B8BA',
+                                color: orderStatus.status === 'returned' && 'white'
+                            }}
+                        >
+                            반납 완료
+                        </SingleBlockButton>
+                        <SingleBlockButton
+                            type='button'
+                            style={{
+                                background: orderStatus.status === 'cancelled' && '#00B8BA',
+                                color: orderStatus.status === 'cancelled' && 'white'
+                            }}
+                        >
+                            취소됨
+                        </SingleBlockButton>
+                    </div>
+                </CommonModalComponent>
+            }
         </>
     );
 }
 export default OrderListComponent;
+
+const initialOrderStatus = null;
+
+const orderStatusReducer = (state, action) => {
+    switch (action.type) {
+        case 'SET_DATA':
+            return action.payload;
+        case 'CLEAR':
+            return initialOrderStatus;
+        default: return initialOrderStatus;
+    }
+}
