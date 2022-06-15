@@ -1,27 +1,52 @@
-import { useReducer, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import qs from 'query-string';
 import styled from 'styled-components';
-import { orderDataConnect } from '../../../data_connect/orderDataConnect';
 import { orderInfoDataConnect } from '../../../data_connect/orderInfoDataConnect';
+import PagenationComponent from '../../module/pagenation/PagenationComponent';
 import OrderListTableComponent from './order-list-table/OrderListTable.component';
 import SearchOperatorComponent from './search-operator/SearchOperator.component';
+import { useBackdropHook, BackdropHookComponent } from '../../../hooks/backdrop/useBackdropHook';
 
 const Container = styled.div`
 
 `;
 
-const initialOrderList = null;
+const initialOrderInfoPage = null;
 
-const orderListReducer = (state, action) => {
+const orderInfoPageReducer = (state, action) => {
     switch (action.type) {
         case 'INIT_DATA':
             return action.payload;
-        default: return null;
+        default: return initialOrderInfoPage;
     }
 }
 
 const MainComponent = (props) => {
-    const [password, setPassword] = useState(null);
-    const [orderList, dispatchOrderList] = useReducer(orderListReducer, initialOrderList);
+    const location = useLocation();
+    const queryString = qs.parse(location.search);
+
+    const [password, setPassword] = useState('Csyna134!');
+    const {
+        open: backdropOpen,
+        onActionOpen: onActionBackdropOpen,
+        onActionClose: onActionBackdropClose
+    } = useBackdropHook();
+
+    const [orderInfoPage, dispatchOrderInfoPage] = useReducer(orderInfoPageReducer, initialOrderInfoPage);
+
+    useEffect(() => {
+        async function fetchInit() {
+            if (!password) {
+                return;
+            }
+            onActionBackdropOpen();
+            await __orderInfo.req.fetch();
+            onActionBackdropClose();
+        }
+        fetchInit();
+
+    }, [location.search]);
 
     const __password = {
         change: {
@@ -33,17 +58,22 @@ const MainComponent = (props) => {
         }
     }
 
-    const __orderList = {
+    const __orderInfo = {
         req: {
             fetch: async () => {
+                let page = queryString.page ?? 1;
+                let size = queryString.size ?? 10;
+
                 let params = {
-                    password: password
+                    password: password,
+                    page: page,
+                    size: size
                 }
 
-                await orderDataConnect().searchList(params)
+                await orderInfoDataConnect().searchPage(params)
                     .then(res => {
                         if (res.status === 200 && res.data.message === 'success') {
-                            dispatchOrderList({
+                            dispatchOrderInfoPage({
                                 type: 'INIT_DATA',
                                 payload: res.data.data
                             })
@@ -58,18 +88,7 @@ const MainComponent = (props) => {
 
                         alert(res.data.memo);
                     })
-            }
-        },
-        submit: {
-            search: async () => {
-                __orderList.req.fetch();
-            }
-        }
-
-    }
-
-    const __orderInfo = {
-        req: {
+            },
             changeStatusOne: async ({
                 body,
                 callback
@@ -77,7 +96,7 @@ const MainComponent = (props) => {
                 await orderInfoDataConnect().changeStatusOne(body)
                     .then(res => {
                         if (res.status === 200) {
-                            __orderList.req.fetch();
+                            __orderInfo.req.fetch();
                             callback();
                         }
                     })
@@ -93,6 +112,9 @@ const MainComponent = (props) => {
             }
         },
         submit: {
+            search: async () => {
+                __orderInfo.req.fetch();
+            },
             changeStatus: async ({
                 body,
                 callback
@@ -110,19 +132,42 @@ const MainComponent = (props) => {
             <Container>
                 <SearchOperatorComponent
                     password={password}
-                    onSubmitSearchOrderList={__orderList.submit.search}
+                    onSubmitSearchOrderList={__orderInfo.submit.search}
 
                     onChangePassword={__password.change.self}
                 ></SearchOperatorComponent>
-                {orderList &&
-                    <OrderListTableComponent
-                        orderList={orderList}
+                {orderInfoPage &&
+                    <>
+                        <div
+                            style={{
+                                padding: 10
+                            }}
+                        >
+                            <PagenationComponent
+                                isFirst={orderInfoPage.first}
+                                isLast={orderInfoPage.last}
+                                pageIndex={orderInfoPage.number}
+                                sizeElements={[20, 50, 100]}
+                                totalPages={orderInfoPage.totalPages}
+                                totalElements={orderInfoPage.totalElements}
+                                align={'right'}
+                            />
+                        </div>
+                        <OrderListTableComponent
+                            orderList={orderInfoPage.content}
 
-                        onSubmitChangeStatus={__orderInfo.submit.changeStatus}
-                    ></OrderListTableComponent>
+                            onSubmitChangeStatus={__orderInfo.submit.changeStatus}
+                        ></OrderListTableComponent>
+                    </>
                 }
 
             </Container>
+
+            {backdropOpen &&
+                <BackdropHookComponent
+                    open={backdropOpen}
+                />
+            }
         </>
     );
 }

@@ -6,6 +6,8 @@ import WritePage from './page/write';
 import UpdatePage from './page/update';
 import SearchOrderPage from './page/search/order';
 import SearchItemPage from './page/search/item';
+import LoginPage from './page/login';
+import SignupPage from './page/signup';
 
 function App() {
     return (
@@ -16,6 +18,8 @@ function App() {
                 <Route path='/update' element={<UpdatePage />}></Route>
                 <Route path='/search/order' element={<SearchOrderPage />}></Route>
                 <Route path='/search/item' element={<SearchItemPage />}></Route>
+                <Route path='/login' element={<LoginPage />}></Route>
+                <Route path='/signup' element={<SignupPage />}></Route>
             </Routes>
         </>
     );

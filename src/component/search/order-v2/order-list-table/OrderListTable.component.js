@@ -7,6 +7,7 @@ import SortButton from '../../../module/button/SortButton';
 import CustomCheckbox from '../../../module/checkbox/CustomCheckbox';
 import LineBreakerBottom from '../../../module/fragment/LineBreakerBottom';
 import CommonModalComponent from '../../../module/modal/CommonModalComponent';
+import PagenationComponent from '../../../module/pagenation/PagenationComponent';
 import ResizableTh from '../../../module/table/ResizableTh';
 
 const Container = styled.div`
@@ -336,18 +337,18 @@ const OrderListTableComponent = (props) => {
                         >
                             <TableHead />
                             {props.orderList?.map((r, index) => {
-                                let nights = dateFormatUtils().getDiffDate(r.orderInfo.pickupDate, r.orderInfo.returnDate);
+                                let nights = dateFormatUtils().getDiffDate(r.pickupDate, r.returnDate);
                                 let orderItemsCount = r.orderItems.length;
-                                let currOrderStatus = ORDER_STATUS_LIST.filter(orderStatus => orderStatus.fieldName === r.orderInfo.status)[0];
+                                let currOrderStatus = ORDER_STATUS_LIST.filter(orderStatus => orderStatus.fieldName === r.status)[0];
 
                                 return (
-                                    <tbody key={r.orderInfo.id}>
+                                    <tbody key={r.id}>
                                         <tr>
-                                            <td rowSpan={orderItemsCount + 1}>{dateFormatUtils().dateToYYMMDDHHmmss(r.orderInfo.createdAt, 'Invalid Date')}</td>
+                                            <td rowSpan={orderItemsCount + 1}>{dateFormatUtils().dateToYYMMDDHHmmss(r.createdAt, 'Invalid Date')}</td>
                                             <td rowSpan={orderItemsCount + 1}>
                                                 <SingleBlockButton
                                                     type='button'
-                                                    onClick={() => __orderStatus.action.openModal(r.orderInfo)}
+                                                    onClick={() => __orderStatus.action.openModal(r)}
                                                     className='status-button'
                                                     style={{
                                                         color: currOrderStatus?.color
@@ -360,8 +361,8 @@ const OrderListTableComponent = (props) => {
                                         {r.orderItems.map((orderItem, index2) => {
                                             return (
                                                 <tr key={orderItem.id}>
-                                                    <td>{r.orderInfo.orderer}</td>
-                                                    <td>{r.orderInfo.ordererPhoneNumber}</td>
+                                                    <td>{r.orderer}</td>
+                                                    <td>{r.ordererPhoneNumber}</td>
                                                     <td>
                                                         {orderItem.itemName}
                                                     </td>
@@ -388,12 +389,12 @@ const OrderListTableComponent = (props) => {
                                                             })
                                                             ||
                                                             0
-                                                        )}
+                                                        )}원
                                                     </td>
-                                                    <td>{dateFormatUtils().dateToYYMMDD(r.orderInfo.pickupDate || new Date())} {r.orderInfo.pickupTime}</td>
-                                                    <td>{dateFormatUtils().dateToYYMMDD(r.orderInfo.returnDate || new Date())} {r.orderInfo.returnTime}</td>
-                                                    <td>{r.orderInfo.pickupRegion}</td>
-                                                    <td>{r.orderInfo.returnRegion}</td>
+                                                    <td>{dateFormatUtils().dateToYYMMDD(r.pickupDate || new Date())} {r.pickupTime}</td>
+                                                    <td>{dateFormatUtils().dateToYYMMDD(r.returnDate || new Date())} {r.returnTime}</td>
+                                                    <td>{r.pickupRegion}</td>
+                                                    <td>{r.returnRegion}</td>
                                                 </tr>
                                             );
                                         })}

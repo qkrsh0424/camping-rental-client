@@ -106,23 +106,44 @@ const Wrapper = styled.div`
     }
 `;
 
-const PagenationComponent = (props) => {
+/**
+ * 
+ * @param {object} props
+ * @param {boolean} props.isFirst
+ * @param {boolean} props.isLast
+ * @param {number} props.pageIndex
+ * @param {array} props.sizeElements
+ * @param {number} props.totalPages
+ * @param {number} props.totalElements
+ * @param {string} props.align
+ * @returns 
+ */
+const PagenationComponent = ({
+    isFirst,
+    isLast,
+    pageIndex,
+    sizeElements,
+    totalPages,
+    totalElements,
+    align,
+    ...props
+}) => {
     const navigate = useNavigate();
     const location = useLocation();
     const query = qs.parse(location.search);
 
     const onActionPrev = () => {
-        if (props.isFirst) {
+        if (isFirst) {
             return;
         }
 
-        let pageIndex = props.pageIndex + 1;
+        let pIndex = pageIndex + 1;
 
         navigate(qs.stringifyUrl({
             url: location.pathname,
             query: {
                 ...query,
-                page: pageIndex - 1
+                page: pIndex - 1
             }
         }), {
             replace: true
@@ -131,17 +152,17 @@ const PagenationComponent = (props) => {
     }
 
     const onActionNext = () => {
-        if (props.isLast) {
+        if (isLast) {
             return;
         }
 
-        let pageIndex = props.pageIndex + 1;
+        let pIndex = pageIndex + 1;
 
         navigate(qs.stringifyUrl({
             url: location.pathname,
             query: {
                 ...query,
-                page: pageIndex + 1
+                page: pIndex + 1
             }
         }), {
             replace: true
@@ -165,15 +186,15 @@ const PagenationComponent = (props) => {
         <>
             <Container>
                 <Wrapper
-                    align={props.align}
-                    isFirst={props.isFirst}
-                    isLast={props.isLast}
+                    align={align}
+                    isFirst={isFirst}
+                    isLast={isLast}
                 >
                     <div className='flex-box'>
-                        {props.sizeElements &&
+                        {sizeElements &&
                             <div className='select-box'>
                                 <select className='select-el' onChange={onActionChangeSize}>
-                                    {props.sizeElements.map((r, index) => {
+                                    {sizeElements.map((r, index) => {
                                         return (
                                             <option key={index} value={r}>{r} 개 보기</option>
                                         );
@@ -182,10 +203,10 @@ const PagenationComponent = (props) => {
                             </div>
                         }
                         <div className='button-box' >
-                            {(!props.isFirst) &&
+                            {(!isFirst) &&
                                 <button className={`circle-button-el`} onClick={onActionPrev}>
                                     <img
-                                        src='/assets/icon/left_navigation_icon.png'
+                                        src='/assets/icon/arrow_left.svg'
                                         className='button-icon-el'
                                         alt='left navigation icon'
                                         loading='lazy'
@@ -195,13 +216,13 @@ const PagenationComponent = (props) => {
                             }
                         </div>
                         <div className='number-box'>
-                            <span>{props.pageIndex + 1 || ''}</span> / <span>{props.totalPages || ''}</span>
+                            <span>{pageIndex + 1 || ''}</span> / <span>{totalPages || ''}</span>
                         </div>
                         <div className='button-box'>
-                            {(!props.isLast) &&
+                            {(!isLast) &&
                                 <button className={`circle-button-el`} onClick={onActionNext}>
                                     <img
-                                        src='/assets/icon/right_navigation_icon.png'
+                                        src='/assets/icon/arrow_right.svg'
                                         className='button-icon-el'
                                         alt='right navigation icon'
                                         loading='lazy'
@@ -210,9 +231,9 @@ const PagenationComponent = (props) => {
                                 </button>
                             }
                         </div>
-                        {props.totalElements &&
+                        {totalElements &&
                             <div className='number-box'>
-                                TOTAL {props.totalElements}
+                                TOTAL {totalElements}
                             </div>
                         }
                     </div>

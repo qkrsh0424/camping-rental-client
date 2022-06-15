@@ -213,6 +213,7 @@ const calculateTotalPrice = (itemList) => {
 }
 
 const initialOrderInfoState = {
+    status:'newOrder',
     orderer: '',
     ordererPhoneNumber: '',
     pickupDate: dateFormatUtils().getStartDate(new Date()),

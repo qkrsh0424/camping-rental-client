@@ -4,48 +4,27 @@ import styled from 'styled-components';
 import { throttle } from 'lodash';
 
 const Container = styled.div`
-    
-    .nav-none{
-        background: #00000000;
-        transition: all .3s;
-    }
-
-    .nav-block{
-        background:#b39283;
-        transition: all .3s;
-    }
+    position: relative;
 `;
 
 const FirstContainer = styled.div`
     overflow: hidden;
-    position:fixed;
-    left: 20px;
+    position:relative;
     z-index: 99;
-    /* background:linear-gradient(70deg, #00B8BA, #31CEAE);
-    background: -webkit-linear-gradient(70deg, #00B8BA, #31CEAE); */
-    width: 120px;
+    display: flex;
+    align-items: center;
+    
+    padding:0 20px;
+    box-sizing: border-box;
+    background: #b39283;
+    width: 100%;
     height:64px;
-
-    &:hover{
-        background:#b39283;
-    }
-
-    @media all and (max-width:992px){
-        width: 60px;
-    }
+    justify-content: space-between;
 `;
 
 const LogoEl = styled.div`
-    /* position:absolute;
-    left:20px;
-    top:50%;
-    transform: translate(0,-50%); */
-    position:absolute;
-    left:50%;
-    top:50%;
-    transform: translate(-50%,-50%);
-    text-align: center;
-    width: 100%;
+    
+    /* padding: 0 10px; */
     word-break: keep-all;
     color: white;
     font-size: 1.25rem;
@@ -58,7 +37,7 @@ const LogoEl = styled.div`
 `;
 
 
-const LogoLink = styled(Link)`
+const TextLink = styled(Link)`
     text-decoration: none;
     color:white;
     &:hover{
@@ -66,38 +45,39 @@ const LogoLink = styled(Link)`
     }
 `;
 
+const UserWrapper = styled.div`
+    display: flex;
+
+    font-size: 14px;
+    font-weight: 600;
+    color:white;
+`;
+
 export default function NavbarMain() {
-    const [scrollY, setScrollY] = useState(window.scrollY);
-
-    const throttledScroll = useMemo(
-        () =>
-            throttle(() => {
-                setScrollY(window.scrollY);
-            }, 300),
-        []
-    );
-
-    useEffect(() => {
-        window.addEventListener('scroll', throttledScroll);
-        return () => {
-            window.removeEventListener('scroll', throttledScroll);
-        };
-    }, []);
 
     return (
         <>
             <Container>
-                <FirstContainer
-                    className={`${scrollY > 64 ? 'nav-block' : 'nav-none'}`}
-                >
+                <FirstContainer>
                     <LogoEl>
-                        <LogoLink
+                        <TextLink
                             to={'/'}
                             replace={false}
                         >
                             캠핑 렌탈
-                        </LogoLink>
+                        </TextLink>
                     </LogoEl>
+                    <UserWrapper>
+                        <TextLink
+                            to={'/login'}
+                            style={{
+                                marginRight: '10px'
+                            }}
+                        >로그인</TextLink>
+                        <TextLink
+                            to={'/signup'}
+                        >회원가입</TextLink>
+                    </UserWrapper>
                 </FirstContainer>
             </Container>
         </>
