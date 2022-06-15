@@ -8,6 +8,7 @@ import SearchOrderPage from './page/search/order';
 import SearchItemPage from './page/search/item';
 import LoginPage from './page/login';
 import SignupPage from './page/signup';
+import NotFoundPage from './page/404';
 
 function App() {
     return (
@@ -20,6 +21,7 @@ function App() {
                 <Route path='/search/item' element={<SearchItemPage />}></Route>
                 <Route path='/login' element={<LoginPage />}></Route>
                 <Route path='/signup' element={<SignupPage />}></Route>
+                <Route path='/*' element={<NotFoundPage />}></Route>
             </Routes>
         </>
     );

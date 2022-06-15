@@ -1,6 +1,4 @@
-import _ from 'lodash';
 import { useEffect, useReducer, useState } from 'react';
-import styled from 'styled-components';
 import { userDataConnect } from '../../../data_connect/userDataConnect';
 import { validationDataConnect } from '../../../data_connect/validationDataConnect';
 import { useBasicSnackbarHook, BasicSnackbarHookComponent } from '../../../hooks/snackbar/useBasicSnackbarHook';
@@ -61,6 +59,7 @@ export default function FormFieldComponent(props) {
     const [formValue, dispatchFormValue] = useReducer(formValueReducer, initialFormValue);
     const [formValid, dispatchFormValid] = useReducer(formValidReducer, initialFormValid);
     const [activePhoneNumberValidationCodeInput, setActivePhoneNumberValidationCodeInput] = useState(false);
+    const [disabledBtn, setDisabledBtn] = useState(false);
 
     useEffect(() => {
         let usernameBool = __formValid.action.checkUsername();
@@ -107,6 +106,18 @@ export default function FormFieldComponent(props) {
         formValue.phoneNumberValidationCode
     ]);
 
+    useEffect(() => {
+        if (!disabledBtn) {
+            return;
+        }
+
+        let timeout = setTimeout(() => {
+            setDisabledBtn(false);
+        }, 1000)
+
+        return () => clearTimeout(timeout);
+    }, [disabledBtn])
+
     const __formValue = {
         change: {
             valueOfName: (e) => {
@@ -124,6 +135,13 @@ export default function FormFieldComponent(props) {
         },
         submit: {
             signup: (e) => {
+                e.preventDefault();
+                setDisabledBtn(true);
+
+                if (disabledBtn) {
+                    return;
+                }
+
                 if (!__formValid.return.canSubmit()) {
                     alert('입력하신 정보가 정확한지 확인하여 주세요.');
                     return;
@@ -161,7 +179,7 @@ export default function FormFieldComponent(props) {
                                 usernameNotDuplicated: false
                             }
                         });
-                        
+
                         if (res.data?.memo) {
                             onActionOpenSnackbar(res.data.memo);
                         }
@@ -267,24 +285,49 @@ export default function FormFieldComponent(props) {
         },
         submit: {
             checkDuplicateUsername: () => {
+                setDisabledBtn(true);
+
+                if (disabledBtn) {
+                    return;
+                }
+
                 if (!formValid.username) {
-                    alert('아이디 형식에 맞게 입력해 주세요.');
+                    onActionOpenSnackbar('아이디 형식에 맞게 입력해 주세요.');
                     return;
                 }
                 __formValid.req.checkDuplicateUsername();
             },
             sendPhoneValidationCode: () => {
+                setDisabledBtn(true);
 
+                if (disabledBtn) {
+                    return;
+                }
+                
+                if (!formValid.phoneNumber) {
+                    onActionOpenSnackbar('휴대전화를 형식에 맞게 입력해 주세요.');
+                    return;
+                }
                 __formValid.req.sendPhoneValidationCode();
             }
         }
     }
-    
+
     return (
         <>
             <Container>
                 <Wrapper>
-                    <FormGroup>
+                    <div
+                        style={{
+                            marginTop: '40px',
+                            textAlign: 'center',
+                            fontWeight: '600',
+                            fontSize: '18px',
+                        }}
+                    >
+                        회원가입
+                    </div>
+                    <FormGroup onSubmit={__formValue.submit.signup}>
                         <InputBox>
                             <div
                                 className='input-label'
@@ -329,7 +372,7 @@ export default function FormFieldComponent(props) {
                                         marginLeft: '5px'
                                     }}
                                     onClick={__formValid.submit.checkDuplicateUsername}
-                                    disabled={!formValid.username}
+                                    disabled={!formValid.username || disabledBtn}
                                 >
                                     중복 체크
                                 </SingleBlockButton>
@@ -420,6 +463,7 @@ export default function FormFieldComponent(props) {
                                         marginLeft: '5px'
                                     }}
                                     onClick={__formValid.submit.sendPhoneValidationCode}
+                                    disabled={!formValid.phoneNumber || disabledBtn}
                                 >
                                     인증번호 받기
                                 </SingleBlockButton>
@@ -446,10 +490,9 @@ export default function FormFieldComponent(props) {
                         </InputBox>
 
                         <SingleBlockButton
-                            type='button'
+                            type='submit'
                             className='submit-button'
-                            onClick={__formValue.submit.signup}
-                            disabled={!__formValid.return.canSubmit()}
+                            disabled={!__formValid.return.canSubmit() || disabledBtn}
                         >
                             회원가입
                         </SingleBlockButton>
@@ -458,7 +501,8 @@ export default function FormFieldComponent(props) {
             </Container>
 
             {/* Snackbar */}
-            {snackbarOpen &&
+            {
+                snackbarOpen &&
                 <BasicSnackbarHookComponent
                     open={snackbarOpen}
                     message={snackbarMessage}

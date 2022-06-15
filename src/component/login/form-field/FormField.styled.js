@@ -16,7 +16,7 @@ const Wrapper = styled.div`
     background:#ffffff;
 `;
 
-const FormGroup = styled.form`
+const FormGroup = styled.div`
     padding: 0 50px;
 
     .submit-button{

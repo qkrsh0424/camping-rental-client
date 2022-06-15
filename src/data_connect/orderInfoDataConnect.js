@@ -1,4 +1,5 @@
 import axios from "axios"
+import { csrfDataConnect } from "./csrfDataConnect";
 
 const MAIN_API_ADDRESS = process.env.REACT_APP_MAIN_API_ADDRESS;
 
@@ -11,8 +12,11 @@ const orderInfoDataConnect = () => {
             })
         },
         changeStatusOne: async function (body) {
+            await csrfDataConnect().getApiCsrf();
             return await axios.patch(`${MAIN_API_ADDRESS}/api/v1/order-infos/${body.orderInfoId}/target:status`, body, {
-                withCredentials: true
+                withCredentials: true,
+                xsrfCookieName: 'x_api_csrf_token',
+                xsrfHeaderName: 'X-XSRF-TOKEN'
             })
         }
     }
