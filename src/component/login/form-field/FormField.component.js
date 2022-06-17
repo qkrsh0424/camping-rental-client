@@ -9,9 +9,6 @@ import { Container, FormGroup, InputBox, Wrapper } from './FormField.styled';
 const initialFormValue = {
     username: '',
     password: '',
-    passwordChecker: '',
-    phoneNumber: '',
-    phoneNumberValidationCode: '',
 }
 
 const formValueReducer = (state, action) => {
@@ -53,6 +50,10 @@ export default function FormFieldComponent(props) {
             }
         },
         submit: {
+            login: (e) => {
+                e.preventDefault();
+                props.onSubmitLogin(formValue);
+            }
         }
     }
 
@@ -63,15 +64,15 @@ export default function FormFieldComponent(props) {
                 <Wrapper>
                     <div
                         style={{
-                            marginTop:'40px',
-                            textAlign:'center',
-                            fontWeight:'600',
-                            fontSize:'18px',
+                            marginTop: '40px',
+                            textAlign: 'center',
+                            fontWeight: '600',
+                            fontSize: '18px',
                         }}
                     >
                         로그인
                     </div>
-                    <FormGroup>
+                    <FormGroup onSubmit={__formValue.submit.login}>
                         <InputBox>
                             <input
                                 type='text'
@@ -85,7 +86,7 @@ export default function FormFieldComponent(props) {
                         </InputBox>
                         <InputBox
                             style={{
-                                marginTop:20
+                                marginTop: 20
                             }}
                         >
                             <input
@@ -98,9 +99,8 @@ export default function FormFieldComponent(props) {
                             ></input>
                         </InputBox>
                         <SingleBlockButton
-                            type='button'
+                            type='submit'
                             className='submit-button'
-                            onClick={__formValue.submit.signup}
                         >
                             로그인
                         </SingleBlockButton>

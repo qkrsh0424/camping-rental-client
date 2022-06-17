@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { throttle } from 'lodash';
+import { useSelector } from 'react-redux';
+import { userDataConnect } from '../../data_connect/userDataConnect';
+import { useCustomRouterHook } from '../../hooks/router/useCustomRouterHook';
 
 const Container = styled.div`
     position: relative;
@@ -45,6 +48,16 @@ const TextLink = styled(Link)`
     }
 `;
 
+const LogoutButton = styled.div`
+    user-select: none;
+    text-decoration: none;
+    color:white;
+    cursor: pointer;
+    &:hover{
+        color:#ffffff80;
+    }
+`;
+
 const UserWrapper = styled.div`
     display: flex;
 
@@ -54,7 +67,27 @@ const UserWrapper = styled.div`
 `;
 
 export default function NavbarMain() {
+    const userRdx = useSelector(state => state.userRedux);
+    const customRouter = useCustomRouterHook();
 
+    const __userRdx = {
+        req: {
+            logout: async () => {
+                await userDataConnect().logout()
+                    .finally(() => {
+                        customRouter.push({
+                            pathname: '/',
+                            replace: true
+                        })
+                    })
+            }
+        },
+        submit: {
+            logout: async () => {
+                await __userRdx.req.logout();
+            }
+        }
+    }
     return (
         <>
             <Container>
@@ -67,17 +100,24 @@ export default function NavbarMain() {
                             캠핑 렌탈
                         </TextLink>
                     </LogoEl>
-                    <UserWrapper>
-                        <TextLink
-                            to={'/login'}
-                            style={{
-                                marginRight: '10px'
-                            }}
-                        >로그인</TextLink>
-                        <TextLink
-                            to={'/signup'}
-                        >회원가입</TextLink>
-                    </UserWrapper>
+                    {!userRdx.isLoading && !userRdx.userInfo &&
+                        <UserWrapper>
+                            <TextLink
+                                to={'/login'}
+                                style={{
+                                    marginRight: '10px'
+                                }}
+                            >로그인</TextLink>
+                            <TextLink
+                                to={'/signup'}
+                            >회원가입</TextLink>
+                        </UserWrapper>
+                    }
+                    {!userRdx.isLoading && userRdx.userInfo &&
+                        <UserWrapper>
+                            <LogoutButton onClick={__userRdx.submit.logout}>로그아웃</LogoutButton>
+                        </UserWrapper>
+                    }
                 </FirstContainer>
             </Container>
         </>

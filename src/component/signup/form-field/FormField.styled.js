@@ -14,10 +14,18 @@ const Wrapper = styled.div`
 
     border-radius: 5px;
     background:#ffffff;
+
+    @media all and (max-width: 992px){
+        width: 90%;
+    }
 `;
 
 const FormGroup = styled.form`
     padding: 0 50px;
+
+    @media all and (max-width: 992px){
+        padding: 0 20px;
+    }
 
     .submit-button{
         width: 100%;

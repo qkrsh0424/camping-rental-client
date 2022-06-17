@@ -25,7 +25,9 @@ function useCustomRouterHook() {
                 replace: replace
             })
         },
-        query: queryString
+        query: queryString,
+        uri: location.pathname + location.search,
+        location: location
     }
 
     return customRouter;
