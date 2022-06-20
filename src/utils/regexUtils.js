@@ -8,7 +8,7 @@ const checkUsernameFormat = (username) => {
 }
 
 const checkNicknameFormat = (nickname) => {
-    if (nickname.length < 3 || nickname.length > 15) {
+    if (nickname.length < 2 || nickname.length > 15) {
         return false;
     }
     return true;
@@ -53,7 +53,7 @@ const checkPhoneNumberFormat = (phoneNumber) => {
 }
 
 const checkEmailFormat = (email) => {
-    let regex = /^([\w._-])*[a-zA-Z0-9]+([\w._-])*([a-zA-Z0-9])+([\w._-])+@([a-zA-Z0-9]+.)+[a-zA-Z0-9]{2,8}$/;
+    let regex = /^([\w._-])*[a-zA-Z0-9]+([\w._-])*([a-zA-Z0-9])+([\w._-])+@([a-zA-Z0-9]+\.)+[a-zA-Z0-9]{2,8}$/;
     return regex.test(email);
 }
 

@@ -39,7 +39,7 @@ const userDataConnect = () => {
         },
         logout: async () => {
             await csrfDataConnect().getApiCsrf();
-            return await axios.post(`${MAIN_API_ADDRESS}/api/v1/users/logout`, null, {
+            return await axiosAuthInterceptor.post(`${MAIN_API_ADDRESS}/api/v1/users/logout`, null, {
                 withCredentials: true,
                 xsrfCookieName: 'x_api_csrf_token',
                 xsrfHeaderName: 'X-XSRF-TOKEN'

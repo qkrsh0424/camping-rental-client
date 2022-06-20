@@ -55,6 +55,13 @@ function App() {
                     })
                     .catch(err => {
                         console.log(err, err.response);
+                        reduxDispatch({
+                            type: 'USER_REDUX_SET_DATA',
+                            payload: {
+                                userInfo: null,
+                                isLoading: false
+                            }
+                        });
                     })
             }
         }

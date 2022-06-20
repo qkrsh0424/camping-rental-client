@@ -75,13 +75,13 @@ export default function FormFieldComponent(props) {
                     <FormGroup onSubmit={__formValue.submit.login}>
                         <InputBox>
                             <input
-                                type='text'
+                                type='email'
                                 className={`input-item`}
                                 name='username'
                                 defaultValue={formValue.username || ''}
                                 onChange={(e) => __formValue.change.valueOfName(e)}
-                                placeholder={'아이디'}
-
+                                placeholder={'아이디(이메일)'}
+                                required
                             ></input>
                         </InputBox>
                         <InputBox
@@ -96,6 +96,7 @@ export default function FormFieldComponent(props) {
                                 value={formValue.password || ''}
                                 onChange={(e) => __formValue.change.valueOfName(e)}
                                 placeholder={'패스워드'}
+                                required
                             ></input>
                         </InputBox>
                         <SingleBlockButton

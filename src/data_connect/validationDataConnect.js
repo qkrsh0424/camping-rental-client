@@ -14,6 +14,16 @@ const validationDataConnect = () => {
                 xsrfCookieName: 'x_api_csrf_token',
                 xsrfHeaderName: 'X-XSRF-TOKEN'
             })
+        },
+        sendEmailValidationCode: async ({ email }) => {
+            await csrfDataConnect().getApiCsrf();
+            return await axios.post(`${MAIN_API_ADDRESS}/api/v1/validations/email/validation-code/action:send`, {
+                email: email
+            }, {
+                withCredentials: true,
+                xsrfCookieName: 'x_api_csrf_token',
+                xsrfHeaderName: 'X-XSRF-TOKEN'
+            })
         }
     }
 }

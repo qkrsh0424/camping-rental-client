@@ -1,26 +1,24 @@
 import { useEffect, useReducer, useState } from 'react';
-import { userDataConnect } from '../../../data_connect/userDataConnect';
 import { validationDataConnect } from '../../../data_connect/validationDataConnect';
 import { useBasicSnackbarHook, BasicSnackbarHookComponent } from '../../../hooks/snackbar/useBasicSnackbarHook';
-import { checkPasswordFormat, checkPhoneNumberFormat, checkUsernameFormat, comparePasswordFormat } from '../../../utils/regexUtils';
+import { checkPasswordFormat, comparePasswordFormat, checkEmailFormat, checkNicknameFormat } from '../../../utils/regexUtils';
 import SingleBlockButton from '../../module/button/SingleBlockButton';
 import { Container, FormGroup, InputBox, Wrapper } from './FormField.styled';
 
 const initialFormValue = {
-    username: '',
+    email: '',
+    emailValidationCode: '',
     password: '',
     passwordChecker: '',
-    phoneNumber: '',
-    phoneNumberValidationCode: '',
+    nickname: ''
 }
 
 const initialFormValid = {
-    username: false,
+    email: false,
+    emailValidationCode: false,
     password: false,
     passwordChecker: false,
-    phoneNumber: false,
-    phoneNumberValidationCode: false,
-    usernameNotDuplicated: false,
+    nickname: false
 }
 
 const formValueReducer = (state, action) => {
@@ -58,30 +56,15 @@ export default function FormFieldComponent(props) {
 
     const [formValue, dispatchFormValue] = useReducer(formValueReducer, initialFormValue);
     const [formValid, dispatchFormValid] = useReducer(formValidReducer, initialFormValid);
-    const [activePhoneNumberValidationCodeInput, setActivePhoneNumberValidationCodeInput] = useState(false);
+    const [activeEmailValidationCodeInput, setActiveEmailValidationCodeInput] = useState(false);
     const [disabledBtn, setDisabledBtn] = useState(false);
 
     useEffect(() => {
-        let usernameBool = __formValid.action.checkUsername();
-
-        dispatchFormValid({
-            type: 'SET_DATA',
-            payload: {
-                ...formValid,
-                username: usernameBool,
-                usernameNotDuplicated: false
-            }
-        })
-
-    }, [
-        formValue.username
-    ]);
-
-    useEffect(() => {
+        let emailBool = __formValid.action.checkEmail();
+        let emailValidationCodeBool = __formValid.action.checkEmailValidationCode();
         let passwordBool = __formValid.action.checkPassword();
-        let phoneNumberBool = __formValid.action.checkPhoneNumber();
         let passwordCheckerBool = false;
-        let phoneNumberValidationCodeBool = __formValid.action.checkPhoneNumberValidationCode();
+        let nicknameBool = __formValid.action.checkNickname();
 
         if (passwordBool) {
             passwordCheckerBool = __formValid.action.checkPasswordChecker();
@@ -91,19 +74,20 @@ export default function FormFieldComponent(props) {
             type: 'SET_DATA',
             payload: {
                 ...formValid,
+                email: emailBool,
+                emailValidationCode: emailValidationCodeBool,
                 password: passwordBool,
                 passwordChecker: passwordCheckerBool,
-                phoneNumber: phoneNumberBool,
-                phoneNumberValidationCode: phoneNumberValidationCodeBool
+                nickname: nicknameBool
             }
         })
 
     }, [
+        formValue.email,
+        formValue.emailValidationCode,
         formValue.password,
         formValue.passwordChecker,
         formValue.nickname,
-        formValue.phoneNumber,
-        formValue.phoneNumberValidationCode
     ]);
 
     useEffect(() => {
@@ -153,45 +137,13 @@ export default function FormFieldComponent(props) {
 
     const __formValid = {
         req: {
-            checkDuplicateUsername: async () => {
-                let username = formValue.username;
+            sendEmailValidationCode: async () => {
+                let email = formValue.email;
 
-                await userDataConnect().checkDuplicateUsername({ username })
+                await validationDataConnect().sendEmailValidationCode({ email })
                     .then(res => {
                         if (res.status === 200) {
-                            dispatchFormValid({
-                                type: 'SET_DATA',
-                                payload: {
-                                    ...formValid,
-                                    usernameNotDuplicated: true
-                                }
-                            })
-                        }
-                    })
-                    .catch(err => {
-                        // console.clear();
-                        let res = err.response;
-
-                        dispatchFormValid({
-                            type: 'SET_DATA',
-                            payload: {
-                                ...formValid,
-                                usernameNotDuplicated: false
-                            }
-                        });
-
-                        if (res.data?.memo) {
-                            onActionOpenSnackbar(res.data.memo);
-                        }
-                    })
-            },
-            sendPhoneValidationCode: async () => {
-                let phoneNumber = formValue.phoneNumber;
-
-                await validationDataConnect().sendPhoneValidationCode({ phoneNumber })
-                    .then(res => {
-                        if (res.status === 200) {
-                            setActivePhoneNumberValidationCodeInput(true);
+                            setActiveEmailValidationCodeInput(true);
                         }
                     })
                     .catch(err => {
@@ -206,11 +158,23 @@ export default function FormFieldComponent(props) {
             }
         },
         action: {
-            checkUsername: () => {
-                let value = formValue.username;
+            checkEmail: () => {
+                let email = formValue.email;
                 let bool = false;
 
-                if (checkUsernameFormat(value)) {
+                if (checkEmailFormat(email)) {
+                    bool = true;
+                } else {
+                    bool = false;
+                }
+
+                return bool;
+            },
+            checkEmailValidationCode: () => {
+                let emailValidationCode = formValue.emailValidationCode;
+                let bool = false;
+
+                if (emailValidationCode.length === 6) {
                     bool = true;
                 } else {
                     bool = false;
@@ -243,23 +207,11 @@ export default function FormFieldComponent(props) {
 
                 return bool;
             },
-            checkPhoneNumber: () => {
-                let phoneNumber = formValue.phoneNumber;
+            checkNickname: () => {
+                let nickname = formValue.nickname;
                 let bool = false;
 
-                if (checkPhoneNumberFormat(phoneNumber)) {
-                    bool = true;
-                } else {
-                    bool = false;
-                }
-
-                return bool;
-            },
-            checkPhoneNumberValidationCode: () => {
-                let phoneNumberValidationCode = formValue.phoneNumberValidationCode;
-                let bool = false;
-
-                if (phoneNumberValidationCode.length > 0) {
+                if (checkNicknameFormat(nickname)) {
                     bool = true;
                 } else {
                     bool = false;
@@ -271,12 +223,11 @@ export default function FormFieldComponent(props) {
         return: {
             canSubmit: () => {
                 if (
-                    formValid.username
+                    formValid.email
+                    && formValid.emailValidationCode
                     && formValid.password
                     && formValid.passwordChecker
-                    && formValid.phoneNumber
-                    && formValid.phoneNumberValidationCode
-                    && formValid.usernameNotDuplicated
+                    && formValid.nickname
                 ) {
                     return true;
                 }
@@ -284,31 +235,18 @@ export default function FormFieldComponent(props) {
             }
         },
         submit: {
-            checkDuplicateUsername: () => {
+            sendEmailValidationCode: () => {
                 setDisabledBtn(true);
 
                 if (disabledBtn) {
                     return;
                 }
 
-                if (!formValid.username) {
-                    onActionOpenSnackbar('아이디 형식에 맞게 입력해 주세요.');
+                if (!formValid.email) {
+                    onActionOpenSnackbar('이메일 주소를 형식에 맞게 입력해 주세요.');
                     return;
                 }
-                __formValid.req.checkDuplicateUsername();
-            },
-            sendPhoneValidationCode: () => {
-                setDisabledBtn(true);
-
-                if (disabledBtn) {
-                    return;
-                }
-                
-                if (!formValid.phoneNumber) {
-                    onActionOpenSnackbar('휴대전화를 형식에 맞게 입력해 주세요.');
-                    return;
-                }
-                __formValid.req.sendPhoneValidationCode();
+                __formValid.req.sendEmailValidationCode();
             }
         }
     }
@@ -340,13 +278,10 @@ export default function FormFieldComponent(props) {
                                     style={{
                                         marginRight: '10px'
                                     }}
-                                >아이디</div>
+                                >아이디(이메일)</div>
                                 <ValidTag
-                                    isValid={formValid.username}
+                                    isValid={formValid.email}
                                 >형식 체크</ValidTag>
-                                <ValidTag
-                                    isValid={formValid.usernameNotDuplicated}
-                                >중복 체크</ValidTag>
                             </div>
                             <div
                                 style={{
@@ -355,13 +290,13 @@ export default function FormFieldComponent(props) {
                                 }}
                             >
                                 <input
-                                    type='text'
+                                    type='email'
                                     className={`input-item`}
-                                    name='username'
-                                    defaultValue={formValue.username || ''}
+                                    name='email'
+                                    defaultValue={formValue.email || ''}
                                     onChange={(e) => __formValue.change.valueOfName(e)}
-                                    placeholder={'영문, 숫자 최소 5-20자'}
-
+                                    placeholder={'이메일 주소를 입력해 주세요.'}
+                                    required
                                 ></input>
                                 <SingleBlockButton
                                     type='button'
@@ -371,12 +306,35 @@ export default function FormFieldComponent(props) {
                                         height: 48,
                                         marginLeft: '5px'
                                     }}
-                                    onClick={__formValid.submit.checkDuplicateUsername}
-                                    disabled={!formValid.username || disabledBtn}
+                                    onClick={__formValid.submit.sendEmailValidationCode}
+                                    disabled={!formValid.email || disabledBtn}
                                 >
-                                    중복 체크
+                                    인증번호 받기
                                 </SingleBlockButton>
                             </div>
+                            {activeEmailValidationCodeInput &&
+                                <div
+                                    style={{
+                                        marginTop: '10px'
+                                    }}
+                                >
+                                    <input
+                                        type='text'
+                                        className={`input-item`}
+                                        name='emailValidationCode'
+                                        value={formValue.emailValidationCode || ''}
+                                        placeholder="인증번호를 입력하세요."
+                                        onChange={(e) => __formValue.change.valueOfName(e)}
+                                        minLength={6}
+                                        maxLength={6}
+                                        required
+                                    ></input>
+                                    <div className='input-notice'>인증번호를 발송했습니다.(유효시간 30분)</div>
+                                    <div className='input-notice'>인증번호가 오지 않으면 입력하신 정보가 정확한지 확인하여 주세요.</div>
+                                    <div className='input-notice' style={{ color: 'red' }}>이미 가입된 이메일은 인증번호를 받을 수 없습니다.</div>
+                                    <div className='input-notice' style={{ color: 'red' }}>인증번호를 여전히 받지 못한 경우 스팸 메일함을 확인하여 주세요.</div>
+                                </div>
+                            }
                         </InputBox>
                         <InputBox>
                             <div
@@ -400,6 +358,9 @@ export default function FormFieldComponent(props) {
                                 value={formValue.password || ''}
                                 onChange={(e) => __formValue.change.valueOfName(e)}
                                 placeholder={'영문, 숫자, 특수문자 혼합 8-50자'}
+                                minLength={8}
+                                maxLength={50}
+                                required
                             ></input>
                         </InputBox>
                         <InputBox>
@@ -423,6 +384,9 @@ export default function FormFieldComponent(props) {
                                 name='passwordChecker'
                                 value={formValue.passwordChecker || ''}
                                 onChange={(e) => __formValue.change.valueOfName(e)}
+                                minLength={8}
+                                maxLength={50}
+                                required
                             ></input>
                         </InputBox>
                         <InputBox>
@@ -433,60 +397,24 @@ export default function FormFieldComponent(props) {
                                     style={{
                                         marginRight: '10px'
                                     }}
-                                >휴대전화</div>
+                                >이름 또는 닉네임</div>
                                 <div>
                                     <ValidTag
-                                        isValid={formValid.phoneNumber}
+                                        isValid={formValid.nickname}
                                     >형식 체크</ValidTag>
                                 </div>
                             </div>
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center'
-                                }}
-                            >
-                                <input
-                                    type='text'
-                                    className={`input-item`}
-                                    name='phoneNumber'
-                                    value={formValue.phoneNumber || ''}
-                                    placeholder="'-'표 없이 입력해 주세요."
-                                    onChange={(e) => __formValue.change.valueOfName(e)}
-                                ></input>
-                                <SingleBlockButton
-                                    type='button'
-                                    style={{
-                                        margin: 0,
-                                        width: 150,
-                                        height: 48,
-                                        marginLeft: '5px'
-                                    }}
-                                    onClick={__formValid.submit.sendPhoneValidationCode}
-                                    disabled={!formValid.phoneNumber || disabledBtn}
-                                >
-                                    인증번호 받기
-                                </SingleBlockButton>
-                            </div>
-                            {activePhoneNumberValidationCodeInput &&
-                                <div
-                                    style={{
-                                        marginTop: '10px'
-                                    }}
-                                >
-                                    <input
-                                        type='text'
-                                        className={`input-item`}
-                                        name='phoneNumberValidationCode'
-                                        value={formValue.phoneNumberValidationCode || ''}
-                                        placeholder="인증번호를 입력하세요."
-                                        onChange={(e) => __formValue.change.valueOfName(e)}
-                                    ></input>
-                                    <div className='input-notice'>인증번호를 발송했습니다.(유효시간 30분)</div>
-                                    <div className='input-notice'>인증번호가 오지 않으면 입력하신 정보가 정확한지 확인하여 주세요.</div>
-                                    <div className='input-notice'>이미 가입된 번호이거나, 가상전화번호는 인증번호를 받을 수 없습니다.</div>
-                                </div>
-                            }
+                            <input
+                                type='text'
+                                className={`input-item`}
+                                name='nickname'
+                                value={formValue.nickname || ''}
+                                onChange={(e) => __formValue.change.valueOfName(e)}
+                                placeholder={'2자 이상 15자 이하로 입력해 주세요.'}
+                                minLength={2}
+                                maxLength={10}
+                                required
+                            ></input>
                         </InputBox>
 
                         <SingleBlockButton
