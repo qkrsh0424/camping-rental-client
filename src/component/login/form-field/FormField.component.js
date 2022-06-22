@@ -1,6 +1,8 @@
 import { useEffect, useReducer, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { userDataConnect } from '../../../data_connect/userDataConnect';
 import { validationDataConnect } from '../../../data_connect/validationDataConnect';
+import { useCustomRouterHook } from '../../../hooks/router/useCustomRouterHook';
 import { useBasicSnackbarHook, BasicSnackbarHookComponent } from '../../../hooks/snackbar/useBasicSnackbarHook';
 import { checkPasswordFormat, checkPhoneNumberFormat, checkUsernameFormat, comparePasswordFormat } from '../../../utils/regexUtils';
 import SingleBlockButton from '../../module/button/SingleBlockButton';
@@ -25,6 +27,7 @@ const formValueReducer = (state, action) => {
 }
 
 export default function FormFieldComponent(props) {
+    const customRouter = useCustomRouterHook();
     const {
         open: snackbarOpen,
         message: snackbarMessage,
@@ -57,6 +60,15 @@ export default function FormFieldComponent(props) {
         }
     }
 
+    const __self = {
+        action: {
+            routeToSignup: () => {
+                customRouter.push({
+                    pathname: '/signup'
+                })
+            }
+        }
+    }
 
     return (
         <>
@@ -99,6 +111,18 @@ export default function FormFieldComponent(props) {
                                 required
                             ></input>
                         </InputBox>
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'flex-end',
+                                fontSize: '13px',
+                                color: '#808080',
+                                marginTop: '10px',
+                                textDecoration: 'underline'
+                            }}
+                        >
+                            아이디/비밀번호 찾기
+                        </div>
                         <SingleBlockButton
                             type='submit'
                             className='submit-button'
@@ -106,6 +130,17 @@ export default function FormFieldComponent(props) {
                             로그인
                         </SingleBlockButton>
                     </FormGroup>
+                    <div
+                        style={{
+                            textAlign: 'center',
+                            fontSize: '13px',
+                            color: '#808080',
+                            marginTop: '40px',
+                            marginBottom: '40px'
+                        }}
+                    >
+                        회원이 아니신가요? <span style={{ textDecoration: 'underline', cursor:'pointer' }} onClick={__self.action.routeToSignup}>회원가입</span>
+                    </div>
                 </Wrapper>
             </Container>
 

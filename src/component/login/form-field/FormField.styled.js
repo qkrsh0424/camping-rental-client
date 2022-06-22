@@ -31,7 +31,6 @@ const FormGroup = styled.form`
         width: 100%;
         height: 48px;
         margin-top: 40px;
-        margin-bottom: 40px;
         padding:0;
 
         background: #000000;

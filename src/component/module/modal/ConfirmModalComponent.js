@@ -65,20 +65,20 @@ const ConfirmModalComponent = ({ open, fullWidth, maxWidth, onConfirm, onClose, 
                     {title || '확인메세지'}
                 </TitleBox>
                 <MessageBox>
-                    {message || '정말로 판매 전환 하시겠습니까?'}
+                    {message || ''}
                 </MessageBox>
                 <ButtonWrapper>
                     <ButtonBox>
                         <button
                             className='button-item'
-                            style={{ color: '#d15120' }}
+                            style={{ color: '#e56767' }}
                             onClick={() => onClose() || {}}
                         >취소</button>
                     </ButtonBox>
                     <ButtonBox>
                         <button
                             className='button-item'
-                            style={{ color: '#2d7ed1' }}
+                            style={{ color: '#2c73d2' }}
                             onClick={_onConfirm}
                             disabled={buttonDisabled}
                         >확인</button>

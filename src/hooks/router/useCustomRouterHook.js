@@ -27,7 +27,8 @@ function useCustomRouterHook() {
         },
         query: queryString,
         uri: location.pathname + location.search,
-        location: location
+        location: location,
+        pathname: location.pathname
     }
 
     return customRouter;

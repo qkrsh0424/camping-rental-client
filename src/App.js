@@ -12,7 +12,16 @@ import NotFoundPage from './page/404';
 import { useCustomRouterHook } from './hooks/router/useCustomRouterHook';
 import { useDispatch, useSelector } from 'react-redux';
 import { userDataConnect } from './data_connect/userDataConnect';
+import RoomPage from './page/room';
+import MyadminPage from './page/myadmin';
 
+/**
+ * 
+ * color
+ * red : #e56767
+ * blue : #2c73d2
+ * brown : #b39283
+ */
 function App() {
     const userRdx = useSelector(state => state.userRedux);
     const reduxDispatch = useDispatch();
@@ -77,6 +86,8 @@ function App() {
                 <Route path='/search/item' element={<SearchItemPage />}></Route>
                 <Route path='/login' element={<LoginPage />}></Route>
                 <Route path='/signup' element={<SignupPage />}></Route>
+                <Route path='/room' element={<RoomPage />}></Route>
+                <Route path='/myadmin' element={<MyadminPage />}></Route>
                 <Route path='/*' element={<NotFoundPage />}></Route>
             </Routes>
         </>

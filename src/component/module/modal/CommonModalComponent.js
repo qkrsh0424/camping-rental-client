@@ -19,6 +19,10 @@ const CustomDialog = styled(Dialog)`
         background-color: #309FFF;
         border-radius: 10px;
     }
+
+    .css-yiavyu-MuiBackdrop-root-MuiDialog-backdrop{
+        background-color:${props => props.backgroundcolor ? props.backgroundcolor : 'inherit'};
+    }
 `;
 
 /**
@@ -30,7 +34,7 @@ const CustomDialog = styled(Dialog)`
  * @param {function} props.onClose
  * @returns 
  */
-const CommonModalComponent = ({ open, fullWidth, maxWidth, onClose, children }) => {
+const CommonModalComponent = ({ open, fullWidth, maxWidth, onClose, backgroundColor, children }) => {
     return (
         <>
             <CustomDialog
@@ -38,6 +42,7 @@ const CommonModalComponent = ({ open, fullWidth, maxWidth, onClose, children }) 
                 fullWidth={fullWidth || true}
                 maxWidth={maxWidth || 'xs'}
                 onClose={() => onClose() || {}}
+                backgroundcolor={backgroundColor || '#00000080'}
             >
                 {children}
             </CustomDialog>

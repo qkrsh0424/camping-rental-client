@@ -115,6 +115,12 @@ export default function NavbarMain() {
                     }
                     {!userRdx.isLoading && userRdx.userInfo &&
                         <UserWrapper>
+                            <TextLink
+                                to={`/room?roomNo=${userRdx.userInfo.id}`}
+                                style={{
+                                    marginRight: '10px'
+                                }}
+                            >마이룸</TextLink>
                             <LogoutButton onClick={__userRdx.submit.logout}>로그아웃</LogoutButton>
                         </UserWrapper>
                     }
