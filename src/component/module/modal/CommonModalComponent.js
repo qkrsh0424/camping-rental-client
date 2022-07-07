@@ -16,7 +16,7 @@ const CustomDialog = styled(Dialog)`
         border-radius: 10px;
     }
     .MuiPaper-root::-webkit-scrollbar-thumb{
-        background-color: #309FFF;
+        background-color: #00000020;
         border-radius: 10px;
     }
 
@@ -30,7 +30,7 @@ const CustomDialog = styled(Dialog)`
  * @param {Object} props
  * @param {boolean} props.open
  * @param {boolean} props.fullWidth
- * @param {string} props.maxWidth
+ * @param {string} props.maxWidth [xs, sm, md, lg, xl]
  * @param {function} props.onClose
  * @returns 
  */

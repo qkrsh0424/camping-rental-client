@@ -48,6 +48,9 @@ const dateFormatUtils = () => {
                 return invalidReturn;
             }
             return moment(date).format("YY.MM.DD HH:mm:ss");
+        },
+        isValidDate: (d) =>{
+            return d instanceof Date && !isNaN(d);
         }
     }
 }

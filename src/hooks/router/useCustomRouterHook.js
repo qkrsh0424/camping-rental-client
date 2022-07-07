@@ -1,10 +1,20 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import qs from 'query-string';
+import { useEffect, useState } from "react";
 
 function useCustomRouterHook() {
     const navigate = useNavigate();
     const location = useLocation();
     const queryString = qs.parse(location.search);
+    const [isReady, setIsReady] = useState(false);
+
+    useEffect(() => {
+        if (!location) {
+            return;
+        }
+
+        setIsReady(true);
+    }, [location])
 
     const customRouter = {
         push: ({
@@ -28,7 +38,8 @@ function useCustomRouterHook() {
         query: queryString,
         uri: location.pathname + location.search,
         location: location,
-        pathname: location.pathname
+        pathname: location.pathname,
+        isReady: isReady
     }
 
     return customRouter;

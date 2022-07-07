@@ -10,6 +10,7 @@ const Wrapper = styled.div`
 `;
 
 const NavItem = styled.div`
+    user-select: none;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -27,6 +28,16 @@ const NavItem = styled.div`
 export default function NavbarComponent(props) {
     const customRouter = useCustomRouterHook();
 
+    const __handle = {
+        action: {
+            route: (pathname) => {
+                customRouter.push({
+                    pathname: pathname,
+                    replace: true
+                })
+            }
+        }
+    }
     return (
         <>
             <Container>
@@ -37,8 +48,19 @@ export default function NavbarComponent(props) {
                             color: customRouter.pathname === '/myadmin' ? 'white' : '',
                             fontWeight: customRouter.pathname === '/myadmin' ? '600' : '',
                         }}
+                        onClick={() => __handle.action.route('/myadmin')}
                     >
                         홈
+                    </NavItem>
+                    <NavItem
+                        style={{
+                            backgroundColor: customRouter.pathname === '/myadmin/products' ? 'black' : '',
+                            color: customRouter.pathname === '/myadmin/products' ? 'white' : '',
+                            fontWeight: customRouter.pathname === '/myadmin/products' ? '600' : '',
+                        }}
+                        onClick={() => __handle.action.route('/myadmin/products')}
+                    >
+                        상품 리스트
                     </NavItem>
                     <NavItem
                         style={{
@@ -48,15 +70,6 @@ export default function NavbarComponent(props) {
                         }}
                     >
                         주문 내역
-                    </NavItem>
-                    <NavItem
-                        style={{
-                            backgroundColor: customRouter.pathname === '/myadmin/items' ? 'black' : '',
-                            color: customRouter.pathname === '/myadmin/items' ? 'white' : '',
-                            fontWeight: customRouter.pathname === '/myadmin/items' ? '600' : '',
-                        }}
-                    >
-                        상품 리스트
                     </NavItem>
                 </Wrapper>
             </Container>

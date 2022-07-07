@@ -4,6 +4,14 @@ const numberFormatHandler = () =>{
             // let formatedNumber = number.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
             let formatedNumber = number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             return formatedNumber;
+        },
+        checkNumberOnlyFormat: function(data){
+            let regex = /^[0-9]*$/;
+            return regex.test(data);
+        },
+        checkNumberWithCommasOnlyFormat: function(data){
+            let regex = /^[0-9,]*$/;
+            return regex.test(data);
         }
     }
 }

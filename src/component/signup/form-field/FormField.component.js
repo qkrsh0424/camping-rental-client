@@ -397,7 +397,7 @@ export default function FormFieldComponent(props) {
                                     style={{
                                         marginRight: '10px'
                                     }}
-                                >이름 또는 닉네임</div>
+                                >닉네임(마이룸 이름)</div>
                                 <div>
                                     <ValidTag
                                         isValid={formValid.nickname}
@@ -412,7 +412,7 @@ export default function FormFieldComponent(props) {
                                 onChange={(e) => __formValue.change.valueOfName(e)}
                                 placeholder={'2자 이상 15자 이하로 입력해 주세요.'}
                                 minLength={2}
-                                maxLength={10}
+                                maxLength={15}
                                 required
                             ></input>
                         </InputBox>

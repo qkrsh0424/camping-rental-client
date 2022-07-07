@@ -25,8 +25,7 @@ const userRedux = (
             }
         default:
             return {
-                userInfo:null,
-                isLoading:true
+                ...state
             }
     }
 }

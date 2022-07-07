@@ -184,7 +184,7 @@ const PagenationComponent = ({
 
     return (
         <>
-            <Container>
+            <Container {...props}>
                 <Wrapper
                     align={align}
                     isFirst={isFirst}

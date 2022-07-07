@@ -13,6 +13,13 @@ const regionDataConnect = () => {
                 xsrfHeaderName: 'X-XSRF-TOKEN'
             })
         },
+        searchListByRoomId: async ({ roomId }) => {
+            return await axiosAuthInterceptor.get(`${MAIN_API_ADDRESS}/api/v1/regions/rooms/${roomId}`, {
+                withCredentials: true,
+                xsrfCookieName: 'x_api_csrf_token',
+                xsrfHeaderName: 'X-XSRF-TOKEN'
+            })
+        },
         create: async (body) => {
             await csrfDataConnect().getApiCsrf();
             return await axiosAuthInterceptor.post(`${MAIN_API_ADDRESS}/api/v1/regions`, body, {
