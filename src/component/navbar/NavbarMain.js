@@ -100,7 +100,7 @@ export default function NavbarMain() {
                             캠핑 렌탈
                         </TextLink>
                     </LogoEl>
-                    {!userRdx.isLoading && !userRdx.userInfo &&
+                    {/* {!userRdx.isLoading && !userRdx.userInfo &&
                         <UserWrapper>
                             <TextLink
                                 to={'/login'}
@@ -112,15 +112,15 @@ export default function NavbarMain() {
                                 to={'/signup'}
                             >회원가입</TextLink>
                         </UserWrapper>
-                    }
+                    } */}
                     {!userRdx.isLoading && userRdx.userInfo &&
                         <UserWrapper>
-                            <TextLink
+                            {/* <TextLink
                                 to={`/room?roomNo=${userRdx.userInfo.id}`}
                                 style={{
                                     marginRight: '10px'
                                 }}
-                            >마이룸</TextLink>
+                            >마이룸</TextLink> */}
                             <LogoutButton onClick={__userRdx.submit.logout}>로그아웃</LogoutButton>
                         </UserWrapper>
                     }

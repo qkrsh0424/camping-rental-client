@@ -30,7 +30,8 @@ export default function MainComponent(props) {
                 let params = {
                     categoryId: categoryId,
                     page: page,
-                    size: size
+                    size: size,
+                    displayYn:'y'
                 }
                 await productDataConnect().searchPage({ params: params })
                     .then(res => {

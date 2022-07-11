@@ -17,7 +17,13 @@ import MyadminPage from './page/myadmin';
 import MyadminProductsPage from './page/myadmin/products';
 import ProductPage from './page/product';
 import CartPage from './page/cart';
-import { useCartListLocalStorage } from './hooks/useCartListLocalStorage';
+import MyadminRentalManageNewOrderPage from './page/myadmin/rental-manage/new-order';
+import MyadminRentalManageConfirmOrderPage from './page/myadmin/rental-manage/confirm-order';
+import MyadminRentalManageConfirmReservationPage from './page/myadmin/rental-manage/confirm-reservation';
+import MyadminRentalManagePickedUpPage from './page/myadmin/rental-manage/picked-up';
+import MyadminRentalManageReturnedPage from './page/myadmin/rental-manage/returned';
+import MyadminRentalManageCompletedPage from './page/myadmin/rental-manage/completed';
+import MyadminRentalManageCancelledPage from './page/myadmin/rental-manage/cancelled';
 
 /**
  * 
@@ -92,6 +98,13 @@ function App() {
                     <Route path='/room' element={<RoomPage />}></Route>
                     <Route path='/myadmin' element={<MyadminPage />}></Route>
                     <Route path='/myadmin/products' element={<MyadminProductsPage />}></Route>
+                    <Route path='/myadmin/rental-manage/new-order' element={<MyadminRentalManageNewOrderPage />}></Route>
+                    <Route path='/myadmin/rental-manage/confirm-order' element={<MyadminRentalManageConfirmOrderPage />}></Route>
+                    <Route path='/myadmin/rental-manage/confirm-reservation' element={<MyadminRentalManageConfirmReservationPage />}></Route>
+                    <Route path='/myadmin/rental-manage/picked-up' element={<MyadminRentalManagePickedUpPage />}></Route>
+                    <Route path='/myadmin/rental-manage/returned' element={<MyadminRentalManageReturnedPage />}></Route>
+                    <Route path='/myadmin/rental-manage/completed' element={<MyadminRentalManageCompletedPage />}></Route>
+                    <Route path='/myadmin/rental-manage/cancelled' element={<MyadminRentalManageCancelledPage />}></Route>
                     <Route path='/*' element={<NotFoundPage />}></Route>
 
                 </Routes>

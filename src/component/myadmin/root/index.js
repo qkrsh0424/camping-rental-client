@@ -7,6 +7,11 @@ import PrivateField from "../../module/field/PrivateField";
 import NavbarComponent from "../navbar/Navbar.component";
 import IntroductionFieldComponent from "./introduction-field/IntroductionField.component";
 import RegionsFieldComponent from "./regions-field/RegionsField.component";
+import styled from 'styled-components';
+
+const Container = styled.div`
+    margin-bottom: 150px;
+`;
 
 export default function MainComponent(props) {
     const userRdx = useSelector(state => state.userRedux);
@@ -184,23 +189,25 @@ export default function MainComponent(props) {
 
     return (
         <>
-            <NavbarComponent />
-            <PrivateField>
-                {room &&
-                    <IntroductionFieldComponent
-                        room={room}
-                        onSubmitChangeIntroduction={__room.submit.changeIntroduction}
-                    />
-                }
-                {regions &&
-                    <RegionsFieldComponent
-                        regions={regions}
-                        onSubmitAdd={__regions.submit.add}
-                        onSubmitModify={__regions.submit.modify}
-                        onSubmitDelete={__regions.submit.delete}
-                    />
-                }
-            </PrivateField>
+            <Container>
+                <NavbarComponent />
+                <PrivateField>
+                    {room &&
+                        <IntroductionFieldComponent
+                            room={room}
+                            onSubmitChangeIntroduction={__room.submit.changeIntroduction}
+                        />
+                    }
+                    {regions &&
+                        <RegionsFieldComponent
+                            regions={regions}
+                            onSubmitAdd={__regions.submit.add}
+                            onSubmitModify={__regions.submit.modify}
+                            onSubmitDelete={__regions.submit.delete}
+                        />
+                    }
+                </PrivateField>
+            </Container>
         </>
     );
 }

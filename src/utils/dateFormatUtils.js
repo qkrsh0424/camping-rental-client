@@ -38,9 +38,12 @@ const dateFormatUtils = () => {
             cdate.setSeconds(0);
             return cdate
         },
-        dateToYYMMDD: function (date) {
-            var d = new Date(date)
-            return moment(d).format("YY.MM.DD");
+        dateToYYMMDD: function (idate, invalidReturn) {
+            var date = new Date(idate || '');
+            if (!isValidDateObject(date)) {
+                return invalidReturn;
+            }
+            return moment(date).format("YY.MM.DD");
         },
         dateToYYMMDDHHmmss: function (idate, invalidReturn) {
             var date = new Date(idate || '');
@@ -49,7 +52,7 @@ const dateFormatUtils = () => {
             }
             return moment(date).format("YY.MM.DD HH:mm:ss");
         },
-        isValidDate: (d) =>{
+        isValidDate: (d) => {
             return d instanceof Date && !isNaN(d);
         }
     }

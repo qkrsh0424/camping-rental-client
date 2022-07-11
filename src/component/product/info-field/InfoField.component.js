@@ -266,7 +266,7 @@ export default function InfoFieldComponent(props) {
                         <div
                             className='nickname'
                         >
-                            {props.product.room.name} 님의 상품
+                            {props.product.room.name} 님의 제품
                         </div>
                     </div>
                 </ContentWrapper>

@@ -56,7 +56,7 @@ export default function SideNavFieldComponent(props) {
                     <div
                         className={`nav-item ${customRouter.query.viewType === 'product' ? 'active' : ''}`}
                         onClick={() => __handle.action.routeToViewType('product')}
-                    >상품</div>
+                    >제품</div>
                     <div className='nav-item' onClick={() => __handle.action.routeToViewType('')}>후기</div>
                     <div className='nav-item' onClick={() => __handle.action.routeToViewType('')}>문의</div>
                 </NavWrapper>

@@ -2,7 +2,9 @@ import axios from "axios";
 
 const MAIN_API_ADDRESS = process.env.REACT_APP_MAIN_API_ADDRESS;
 
-const axiosAuthInterceptor = axios.create();
+const axiosAuthInterceptor = axios.create({
+    timeout:5000
+});
 
 let isCsrfRefreshing = false;
 let isAuthTokenRefreshing = true;

@@ -182,7 +182,7 @@ export default function ControlFieldComponent(props) {
                     className='add-button-item'
                     onClick={__product.action.openAddProductModal}
                 >
-                    상품 추가
+                    제품 추가
                 </SingleBlockButton>
             </Container>
 
@@ -297,7 +297,7 @@ function AddProductModal({
                 }
 
                 if (!product.name) {
-                    alert('상품명은 필수 입력입니다.')
+                    alert('제품명은 필수 입력입니다.')
                     return;
                 }
 
@@ -373,7 +373,7 @@ function AddProductModal({
                         />
                     </div>
                     <div className='input-box'>
-                        <div className='input-label'>상품명</div>
+                        <div className='input-label'>제품명</div>
                         <input
                             type='text'
                             className='input-item'

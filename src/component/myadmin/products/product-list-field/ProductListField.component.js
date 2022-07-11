@@ -376,21 +376,21 @@ export default function ProductListFieldComponent(props) {
             <ConfirmModalComponent
                 open={displayOffConfirmModalOpen}
                 onClose={__product.action.closeDisplayOffConfirmModal}
-                message='해당 상품의 전시상태를 전시중지로 변경 하시겠습니까?'
+                message='해당 제품의 전시상태를 전시중지로 변경 하시겠습니까?'
                 onConfirm={__product.submit.confirmDisplayOff}
             />
 
             <ConfirmModalComponent
                 open={displayOnConfirmModalOpen}
                 onClose={__product.action.closeDisplayOnConfirmModal}
-                message='해당 상품의 전시상태를 전시중으로 변경 하시겠습니까?'
+                message='해당 제품의 전시상태를 전시중으로 변경 하시겠습니까?'
                 onConfirm={__product.submit.confirmDisplayOn}
             />
 
             <ConfirmModalComponent
                 open={deleteConfirmModalOpen}
                 onClose={__product.action.closeDeleteConfirmModal}
-                message='해당 상품을 정말로 삭제하시겠습니까?'
+                message='해당 제품을 정말로 삭제하시겠습니까?'
                 onConfirm={__product.submit.confirmDelete}
             />
 
@@ -651,7 +651,7 @@ function ModifyModal({
                 }
 
                 if (!modifyProduct.name) {
-                    alert('상품명은 필수 입력입니다.')
+                    alert('제품명은 필수 입력입니다.')
                     return;
                 }
 
@@ -732,7 +732,7 @@ function ModifyModal({
                     />
                 </div>
                 <div className='input-box'>
-                    <div className='input-label'>상품명</div>
+                    <div className='input-label'>제품명</div>
                     <input
                         type='text'
                         className='input-item'

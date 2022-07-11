@@ -143,7 +143,7 @@ export default function IntroduceFieldComponent(props) {
                                 <div
                                     className='count-box-content'
                                 >
-                                    <div className='title'>상품수</div>
+                                    <div className='title'>제품수</div>
                                     <div className='count'>100 개</div>
                                 </div>
                             </div>
