@@ -131,15 +131,49 @@ const AddProductModalWrapper = styled.div`
         background: white;
         border:1px solid #e0e0e0;
         box-sizing: border-box;
-        cursor: pointer;
         margin-right: 5px;
         margin-bottom: 5px;
+    }
+
+    .image-box:hover>.image-item{
+        -webkit-filter: grayscale(50%) blur(1px);
+	    filter: grayscale(50%) blur(1px);
+    }
+
+    .image-box:hover>.image-delete-button{
+        display: block;
     }
 
     .image-item{
         width:100%;
         height: 100%;
         object-fit: cover;
+    }
+
+    .image-delete-button{
+        display: none;
+        position:absolute;
+        padding:0;
+        margin:0;
+        box-sizing: border-box;
+        top:50%;
+        left:50%;
+        transform: translate(-50%, -50%);
+        width:25px;
+        height: 25px;
+        border:1px solid #e56767;
+        border-radius: 50%;
+        background:white;
+        cursor: pointer;
+    }
+
+    .image-delete-button-icon{
+        position:absolute;
+        top:50%;
+        left:50%;
+        transform: translate(-50%, -50%);
+        width:25px;
+        height: 25px;
     }
 
     .button-box{
@@ -216,6 +250,17 @@ function AddProductModal({
                     return;
                 }
                 fileUploaderRef.current.click();
+            },
+            deleteImage: (imageId) => {
+                let newImages = [...product.images.filter(r => r.id !== imageId)];
+
+                dispatchProduct({
+                    type: 'SET_DATA',
+                    payload: {
+                        ...product,
+                        images: newImages
+                    }
+                })
             }
         },
         change: {
@@ -277,7 +322,12 @@ function AddProductModal({
                 let imageInfos = await __reqUploadImageFile(e);
 
                 let images = [...product.images];
-                images = images.concat(imageInfos);
+                images = images.concat(imageInfos.map(r => {
+                    return {
+                        ...r,
+                        productId: null
+                    }
+                }));
 
                 dispatchProduct({
                     type: 'SET_DATA',
@@ -347,6 +397,17 @@ function AddProductModal({
                                             src={r.fileFullUri}
                                             alt="file"
                                         ></img>
+                                        <button
+                                            type='button'
+                                            className='image-delete-button'
+                                            onClick={() => __product.action.deleteImage(r.id)}
+                                        >
+                                            <img
+                                                className='image-delete-button-icon'
+                                                src='/assets/icon/remove_default_red.svg'
+                                                alt='delete icon'
+                                            ></img>
+                                        </button>
                                     </div>
                                 );
                             })}
