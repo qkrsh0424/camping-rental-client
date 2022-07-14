@@ -6,6 +6,7 @@ import { numberFormatHandler } from '../../../../utils/numberFormatHandler';
 import valueUtils from '../../../../utils/valueUtils';
 import Ripple from '../../../module/button/Ripple';
 import SingleBlockButton from '../../../module/button/SingleBlockButton';
+import CustomCheckbox from '../../../module/checkbox/CustomCheckbox';
 import CommonModalComponent from '../../../module/modal/CommonModalComponent';
 import ConfirmModalComponent from '../../../module/modal/ConfirmModalComponent';
 import CustomSelect from '../../../module/select/CustomSelect';
@@ -26,6 +27,7 @@ const ItemListWrapper = styled.div`
 
     display: flex;
     flex-wrap: wrap;
+    align-items: stretch;
 
     @media all and (max-width: 992px){
         flex-direction: column;
@@ -91,6 +93,18 @@ const CardWrapper = styled.div`
         font-size: 16px;
         font-weight: 600;
         margin-top: 10px;
+        @media all and (max-width: 992px){
+            margin-top: 5px;
+            font-size: 12px;
+        }
+    }
+
+    .content-box .content-list{
+        padding:0 20px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-top: 5px;
+        color: #505050;
         @media all and (max-width: 992px){
             margin-top: 5px;
             font-size: 12px;
@@ -471,12 +485,23 @@ function ProductCard({
                         className='image-el'
                         src={product.thumbnailUri}
                         alt={'product thumbnail'}
+                        loading={'lazy'}
                     ></img>
                 </div>
             </div>
             <div className='content-box'>
                 <div className='content-title'>{product.name}</div>
-                <div className='content-price'>1박 {numberFormatHandler().numberWithCommas(product.price || 0)} 원 | 연박 할인 {product.discountRate}%</div>
+                <div className='content-price'>{numberFormatHandler().numberWithCommas(product.price || 0)} 원 (1시간)</div>
+                <ul className='content-list'>
+                    <li>
+                        최소 대여 가능 시간 {product.minimumRentalHour}H
+                    </li>
+                    {product.discountYn === 'y' &&
+                        <li>
+                            {product.discountMinimumHour}H 이상 대여시 <span style={{ color: '#b39283' }}>{product.discountRate}% 할인</span>
+                        </li>
+                    }
+                </ul>
                 <div className='content-regions'>
                     <div>픽업 | 반납 장소</div>
                     {product.regions.slice(0, 3).map(r => {
@@ -663,6 +688,49 @@ function ModifyModal({
                     }
                 })
             },
+            minimumRentalHour: (e) => {
+                let value = e.target.value;
+
+                if (!numberFormatHandler().checkNumberOnlyFormat(value) || value < 0 || value > 10000) {
+                    return;
+                }
+
+                dispatchModifyProduct({
+                    type: 'SET_DATA',
+                    payload: {
+                        ...modifyProduct,
+                        minimumRentalHour: value
+                    }
+                })
+            },
+            discountYn: (e) => {
+                let checked = e.target.checked;
+
+                let discountYn = checked ? 'y' : 'n';
+
+                dispatchModifyProduct({
+                    type: 'SET_DATA',
+                    payload: {
+                        ...modifyProduct,
+                        discountYn: discountYn
+                    }
+                })
+            },
+            discountMinimumHour: (e) => {
+                let value = e.target.value;
+
+                if (!numberFormatHandler().checkNumberOnlyFormat(value) || value < 0 || value > 10000) {
+                    return;
+                }
+
+                dispatchModifyProduct({
+                    type: 'SET_DATA',
+                    payload: {
+                        ...modifyProduct,
+                        discountMinimumHour: value
+                    }
+                })
+            },
             pushImage: async (e) => {
                 e.preventDefault();
 
@@ -716,14 +784,28 @@ function ModifyModal({
                     return;
                 }
 
-                if (modifyProduct.discountRate < 0 || modifyProduct.discountRate > 100) {
-                    alert('연박 할인을 정확하게 입력해 주세요.');
+                if (modifyProduct.minimumRentalHour <= 0) {
+                    alert('최소 대여 가능 시간을 정확하게 입력해 주세요.');
                     return;
+                }
+
+                if (modifyProduct.discountYn === 'y') {
+                    if (modifyProduct.discountMinimumHour <= 0 || modifyProduct.discountMinimumHour > 10000) {
+                        alert('최소 할인 적용 시간을 정확하게 입력해 주세요.');
+                        return;
+                    }
+
+                    if (modifyProduct.discountRate <= 0 || modifyProduct.discountRate > 100) {
+                        alert('할인율을 정확하게 입력해 주세요.');
+                        return;
+                    }
                 }
 
                 let body = {
                     ...modifyProduct,
                     price: valueUtils.isEmptyNumbers(parseInt(modifyProduct.price)) ? 0 : parseInt(modifyProduct.price),
+                    minimumRentalHour: valueUtils.isEmptyNumbers(parseInt(modifyProduct.minimumRentalHour)) ? 1 : parseInt(modifyProduct.minimumRentalHour),
+                    discountMinimumHour: valueUtils.isEmptyNumbers(parseInt(modifyProduct.discountMinimumHour)) ? 0 : parseInt(modifyProduct.discountMinimumHour),
                     discountRate: valueUtils.isEmptyNumbers(parseInt(modifyProduct.discountRate)) ? 0 : parseInt(modifyProduct.discountRate)
                 }
 
@@ -746,7 +828,7 @@ function ModifyModal({
                         borderBottom: '1px solid #e0e0e0'
                     }}
                 >
-                    <div className='input-label'>이미지({modifyProduct.productImages.length} / 10)</div>
+                    <div className='input-label'>이미지({modifyProduct.productImages?.length} / 10)</div>
                     <div className='image-list-wrapper'>
                         {modifyProduct.productImages.map(r => {
                             return (
@@ -822,7 +904,7 @@ function ModifyModal({
                     </CustomSelect>
                 </div>
                 <div className='input-box'>
-                    <div className='input-label'>가격(원)</div>
+                    <div className='input-label'>시간당 가격(원)</div>
                     <input
                         type='text'
                         className='input-item'
@@ -832,6 +914,17 @@ function ModifyModal({
                     ></input>
                 </div>
                 <div className='input-box'>
+                    <div className='input-label'>최소 대여 가능 시간</div>
+                    <input
+                        type='text'
+                        className='input-item'
+                        name='minimumRentalHour'
+                        value={modifyProduct.minimumRentalHour || ''}
+                        onChange={__modifyProduct.change.minimumRentalHour}
+                        required
+                    ></input>
+                </div>
+                {/* <div className='input-box'>
                     <div className='input-label'>연박 할인(%)</div>
                     <input
                         type='text'
@@ -842,6 +935,66 @@ function ModifyModal({
                         min={0}
                         onChange={__modifyProduct.change.discountRate}
                     ></input>
+                </div> */}
+                <div className='input-box'>
+                    <div>
+                        <CustomCheckbox
+                            label={'할인 적용하기'}
+                            checked={modifyProduct.discountYn === 'y' ? true : false}
+                            onChange={__modifyProduct.change.discountYn}
+                            labelStyle={{
+                                color: '#000000de'
+                            }}
+                        />
+                    </div>
+                    {modifyProduct.discountYn === 'y' &&
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center'
+                            }}
+                        >
+                            <div
+                                style={{
+                                    flex: 1
+                                }}
+                            >
+                                <input
+                                    type='text'
+                                    className='input-item'
+                                    name='discountMinimumHour'
+                                    value={modifyProduct.discountMinimumHour || ''}
+                                    max={100}
+                                    min={0}
+                                    placeholder={''}
+                                    onChange={__modifyProduct.change.discountMinimumHour}
+                                    style={{
+                                        textAlign: 'center'
+                                    }}
+                                ></input>
+                            </div>
+                            <div style={{ fontSize: '14px', fontWeight: '500' }}>시간 이상 대여시</div>
+                            <div
+                                style={{
+                                    flex: 1,
+                                }}
+                            >
+                                <input
+                                    type='text'
+                                    className='input-item'
+                                    name='discountRate'
+                                    value={modifyProduct.discountRate || ''}
+                                    max={100}
+                                    min={0}
+                                    onChange={__modifyProduct.change.discountRate}
+                                    style={{
+                                        textAlign: 'center'
+                                    }}
+                                ></input>
+                            </div>
+                            <div style={{ fontSize: '14px', fontWeight: '500' }}>(%) 할인</div>
+                        </div>
+                    }
                 </div>
                 <div className='input-box'>
                     <div className='input-label'>설명</div>

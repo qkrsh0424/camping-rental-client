@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { productCategoryDataConnect } from "../../../data_connect/productCategoryDataConnect";
 import { productDataConnect } from "../../../data_connect/productDataConnect";
@@ -11,6 +11,7 @@ import ControlFieldComponent from "./control-field/ControlField.component";
 import ProductListFieldComponent from "./product-list-field/ProductListField.component";
 
 export default function MainComponent(props) {
+    const scrollRef = useRef(null);
     const userRdx = useSelector(state => state.userRedux);
     const customRouter = useCustomRouterHook();
     const [allCategories, dispatchAllCategories] = useReducer(allCategoriesReducer, initialAllCategories);
@@ -212,6 +213,7 @@ export default function MainComponent(props) {
     return (
         <>
             <NavbarComponent />
+            <div ref={scrollRef}></div>
             <PrivateField>
                 <ControlFieldComponent
                     allCategories={allCategories}
@@ -236,10 +238,17 @@ export default function MainComponent(props) {
                         isFirst={productPage.first}
                         isLast={productPage.last}
                         pageIndex={productPage.number}
+                        size={customRouter.query.size || 30}
                         sizeElements={[30, 50, 100]}
                         totalPages={productPage.totalPages}
                         totalElements={productPage.totalElements}
                         align={'center'}
+                        onPrevEvent={() => {
+                            scrollRef.current.scrollIntoView({ behavior: 'auto', block: 'start' });
+                        }}
+                        onNextEvent={() => {
+                            scrollRef.current.scrollIntoView({ behavior: 'auto', block: 'start' });
+                        }}
                     />
                 }
             </PrivateField>

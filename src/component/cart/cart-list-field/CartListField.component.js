@@ -12,6 +12,7 @@ import { dateFormatUtils } from '../../../utils/dateFormatUtils';
 import { numberFormatHandler } from "../../../utils/numberFormatHandler";
 import LineBreakerBottom from "../../module/fragment/LineBreakerBottom";
 import { checkPhoneNumberFormat } from "../../../utils/regexUtils";
+import moment from "moment";
 
 const Wrapper = styled.div`
     border:1px solid #e0e0e0;
@@ -106,10 +107,10 @@ const CartProductCard = styled.div`
     }
 
     .image-box{
-        width:100px;
+        width:120px;
 
         @media all and (max-width: 992px){
-            width:80px;
+            width:90px;
         }
     }.image-box>.image-figure{
         position:relative;
@@ -133,12 +134,12 @@ const CartProductCard = styled.div`
     .content-box>.product-name{
         font-size: 16px;
         font-weight: 500;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.06em;
         line-height: 1.3;
         color:#404040;
 
         @media all and (max-width: 992px){
-            font-size: 13px;
+            font-size: 12px;
         }
     }
 `;
@@ -191,6 +192,16 @@ const OrderFormModalWrapper = styled.div`
 
     .date-picker{
         width: 100%;
+    }
+
+    .diffHour-box{
+        padding: 0 10px;
+        font-weight: 600;
+        font-size: 16px;
+
+        @media all and (max-width: 992px){
+            font-size: 14px;
+        }
     }
 
     .button-box{
@@ -370,9 +381,12 @@ export default function CartListFieldComponent(props) {
                                         <div className='content-box'>
                                             <div className='product-name'>
                                                 <div>{r.productName}</div>
-                                                <div>1박 가격 : {r.price} 원</div>
-                                                <div>연박 할인 : {r.discountRate} %</div>
-                                                <div>수량 : {r.unit} 개</div>
+                                                <div>가격(1시간): {r.price} 원</div>
+                                                {r.discountYn === 'y' &&
+                                                    <div>{r.discountMinimumHour}H 이상 대여시 할인: {r.discountRate} %</div>
+                                                }
+                                                <div>최소 대여 가능 시간: {r.minimumRentalHour}H</div>
+                                                <div>수량: {r.unit} 개</div>
                                             </div>
                                         </div>
                                     </div>
@@ -418,6 +432,14 @@ function OrderFormModal({
 
     const [orderConfirmationFlag, setOrderConfirmationFlag] = useState(false);
     const [disabledBtn, setDisabledBtn] = useState(false);
+    const [minRentalHour, setMinRentalHour] = useState(0);
+
+    useEffect(() => {
+        let minimumRentalHourList = aggregatedProduct.cartProducts.map(r => r.minimumRentalHour);
+        let minRentalHour = Math.max.apply(null, minimumRentalHourList);
+
+        setMinRentalHour(minRentalHour);
+    }, [])
 
     useEffect(() => {
         if (!disabledBtn) {
@@ -432,19 +454,20 @@ function OrderFormModal({
     }, [disabledBtn]);
     const __handle = {
         return: {
-            totalPrice: ({ nights }) => {
+            totalPrice: ({ diffHours }) => {
                 let totalPrice = 0;
                 aggregatedProduct.cartProducts?.forEach(r => {
-                    let price = r.price;
-                    if (nights >= 2) {
-                        price = __handle.return.afterDiscountPrice({ price: r.price, unit: r.unit, discountRate: r.discountRate, nights: nights });
-                    }
-                    totalPrice += price;
+                    totalPrice += __handle.return.productOrderPrice({ price: r.price, unit: r.unit, discountRate: r.discountRate, diffHours: diffHours, discountMinimumHour: r.discountMinimumHour });
                 });
                 return totalPrice;
             },
-            afterDiscountPrice: ({ price, unit, nights, discountRate }) => {
-                return (price * unit * nights * (1 - (discountRate / 100)));
+            productOrderPrice: ({ price, unit, diffHours, discountRate, discountMinimumHour }) => {
+                if (diffHours >= discountMinimumHour) {
+                    return (price * unit * diffHours * (1 - (discountRate / 100)));
+                } else {
+                    return price * unit * diffHours;
+                }
+
             }
         }
     }
@@ -463,7 +486,7 @@ function OrderFormModal({
                     return;
                 }
 
-                if(!checkPhoneNumberFormat(orderBasicInfo.ordererPhoneNumber)){
+                if (!checkPhoneNumberFormat(orderBasicInfo.ordererPhoneNumber)) {
                     alert('주문자 연락처를 형식에 맞게 정확히 입력해 주세요.');
                     return;
                 }
@@ -497,6 +520,15 @@ function OrderFormModal({
                     alert('반납 시간을 선택해 주세요.');
                     return;
                 }
+
+                let pDate = dateFormatUtils().dateFromDateAndHH_mm(orderBasicInfo.pickupDate, orderBasicInfo.pickupTime);
+                let rDate = dateFormatUtils().dateFromDateAndHH_mm(orderBasicInfo.returnDate, orderBasicInfo.returnTime);
+                let diffHours = dateFormatUtils().getDiffHoursFromDatesAllowNegative(pDate, rDate);
+                if (diffHours < minRentalHour) {
+                    alert('해당 제품들의 주문을 위한 최소 대여 가능 시간은 10시간 입니다.')
+                    return;
+                }
+
                 setOrderConfirmationFlag(true);
             },
             changeViewToOrder: () => {
@@ -524,9 +556,11 @@ function OrderFormModal({
                 })
             },
             returnDate: (value) => {
+                let rDate = dateFormatUtils().getEndDate(value || new Date());
+
                 setOrderBasicInfo({
                     ...orderBasicInfo,
-                    returnDate: dateFormatUtils().getEndDate(value || new Date())
+                    returnDate: rDate
                 })
             },
             pickupAndReturnPlace: (e) => {
@@ -560,6 +594,7 @@ function OrderFormModal({
                         productName: r.productName,
                         thumbnailUri: r.thumbnailUri,
                         price: r.price,
+                        discountMinimumHour: r.discountMinimumHour,
                         discountRate: r.discountRate,
                         unit: r.unit,
                         productId: r.productId
@@ -586,6 +621,11 @@ function OrderFormModal({
 
     if (orderConfirmationFlag) {
         let nights = dateFormatUtils().getDiffDate(orderBasicInfo.pickupDate, orderBasicInfo.returnDate);
+        let pDate = dateFormatUtils().dateFromDateAndHH_mm(orderBasicInfo.pickupDate, orderBasicInfo.pickupTime);
+        let rDate = dateFormatUtils().dateFromDateAndHH_mm(orderBasicInfo.returnDate, orderBasicInfo.returnTime);
+        let diffHours = dateFormatUtils().getDiffHoursFromDates(pDate, rDate);
+
+
         return (
             <OrderFormModalWrapper>
                 <div className='title'>
@@ -621,21 +661,16 @@ function OrderFormModal({
                 <LineBreakerBottom></LineBreakerBottom>
                 <OrderFormConfirmationContentBox>
                     {aggregatedProduct?.cartProducts.map(r => {
-                        let afterDiscountPrice = (r.discountRate && nights >= 2) ? __handle.return.afterDiscountPrice({ price: r.price, unit: r.unit, discountRate: r.discountRate, nights: nights }) : r.price;
+                        let price = __handle.return.productOrderPrice({ price: r.price, unit: r.unit, discountRate: r.discountRate, diffHours: diffHours, discountMinimumHour: r.discountMinimumHour });
                         return (
                             <div className='item-box' key={r.cartId}>
-                                <div className='item-name'>{r.productName} x {r.unit} 개 x {nights} 박</div>
-                                {nights >= 2 &&
+                                <div className='item-name'>{r.productName} x {r.unit} 개 x ({diffHours}H)</div>
+                                {diffHours >= r.discountMinimumHour &&
                                     <>
-                                        <div className='item-discounted'>{r.discountRate} % 연박 할인 적용!!</div>
-                                        <div className='item-price'>{numberFormatHandler().numberWithCommas(afterDiscountPrice || 0)} 원</div>
+                                        <div className='item-discounted'>{r.discountRate}% 할인 적용!!</div>
                                     </>
                                 }
-                                {nights < 2 &&
-                                    <>
-                                        <div className='item-price'>{numberFormatHandler().numberWithCommas(r.price || 0)} 원</div>
-                                    </>
-                                }
+                                <div className='item-price'>{numberFormatHandler().numberWithCommas(price || 0)} 원</div>
                             </div>
                         );
                     })}
@@ -644,7 +679,7 @@ function OrderFormModal({
                             합계 금액
                         </div>
                         <div className='info-price-content'>
-                            {numberFormatHandler().numberWithCommas(__handle.return.totalPrice({ nights: nights }) || 0)} 원
+                            {numberFormatHandler().numberWithCommas(__handle.return.totalPrice({ diffHours: diffHours }) || 0)} 원
                         </div>
                     </div>
                 </OrderFormConfirmationContentBox>
@@ -808,6 +843,8 @@ function OrderFormModal({
                                     name='pickupTime'
                                     onChange={(e) => __orderBasicInfo.change.valueOfName(e)}
                                 >
+                                    <MenuItem value='08:00'>08:00</MenuItem>
+                                    <MenuItem value='09:00'>09:00</MenuItem>
                                     <MenuItem value='10:00'>10:00</MenuItem>
                                     <MenuItem value='11:00'>11:00</MenuItem>
                                     <MenuItem value='12:00'>12:00</MenuItem>
@@ -818,6 +855,9 @@ function OrderFormModal({
                                     <MenuItem value='17:00'>17:00</MenuItem>
                                     <MenuItem value='18:00'>18:00</MenuItem>
                                     <MenuItem value='19:00'>19:00</MenuItem>
+                                    <MenuItem value='20:00'>20:00</MenuItem>
+                                    <MenuItem value='21:00'>21:00</MenuItem>
+                                    <MenuItem value='22:00'>22:00</MenuItem>
                                 </Select>
                             </FormControl>
                         </div>
@@ -852,13 +892,15 @@ function OrderFormModal({
                             }}
                         >
                             <FormControl fullWidth required>
-                                <InputLabel>픽업 시간 선택</InputLabel>
+                                <InputLabel>반납 시간 선택</InputLabel>
                                 <Select
                                     label="반납 시간 선택"
                                     value={orderBasicInfo?.returnTime || ''}
                                     name='returnTime'
                                     onChange={(e) => __orderBasicInfo.change.valueOfName(e)}
                                 >
+                                    <MenuItem value='08:00'>08:00</MenuItem>
+                                    <MenuItem value='09:00'>09:00</MenuItem>
                                     <MenuItem value='10:00'>10:00</MenuItem>
                                     <MenuItem value='11:00'>11:00</MenuItem>
                                     <MenuItem value='12:00'>12:00</MenuItem>
@@ -869,10 +911,14 @@ function OrderFormModal({
                                     <MenuItem value='17:00'>17:00</MenuItem>
                                     <MenuItem value='18:00'>18:00</MenuItem>
                                     <MenuItem value='19:00'>19:00</MenuItem>
+                                    <MenuItem value='20:00'>20:00</MenuItem>
+                                    <MenuItem value='21:00'>21:00</MenuItem>
+                                    <MenuItem value='22:00'>22:00</MenuItem>
                                 </Select>
                             </FormControl>
                         </div>
                     </div>
+                    <div className='diffHour-box'>최소 대여 가능 시간 : <span style={{ color: '#e56767' }}>{minRentalHour}H</span></div>
                     <div className="button-box">
                         <SingleBlockButton
                             type='button'

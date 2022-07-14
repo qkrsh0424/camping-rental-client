@@ -49,6 +49,7 @@ const CardWrapper = styled(Link)`
     }
 
     .image-box{
+        overflow: hidden;
         width:100%;
         overflow: hidden;
         border-radius: 5px;
@@ -94,6 +95,18 @@ const CardWrapper = styled(Link)`
         font-size: 16px;
         font-weight: 600;
         margin-top: 10px;
+        @media all and (max-width: 992px){
+            margin-top: 5px;
+            font-size: 12px;
+        }
+    }
+
+    .content-box .content-list{
+        padding:0 20px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-top: 5px;
+        color: #505050;
         @media all and (max-width: 992px){
             margin-top: 5px;
             font-size: 12px;
@@ -176,12 +189,23 @@ function ProductCard({
                         className='image-el'
                         src={product.thumbnailUri}
                         alt={'product thumbnail'}
+                        loading={'lazy'}
                     ></img>
                 </div>
             </div>
             <div className='content-box'>
                 <div className='content-title'>{product.name}</div>
-                <div className='content-price'>1박 {numberFormatHandler().numberWithCommas(product.price || 0)} 원 | 연박 할인 {product.discountRate}%</div>
+                <div className='content-price'>{numberFormatHandler().numberWithCommas(product.price || 0)} 원 (1시간)</div>
+                <ul className='content-list'>
+                    <li>
+                        최소 대여 가능 시간 {product.minimumRentalHour}H
+                    </li>
+                    {product.discountYn === 'y' &&
+                        <li>
+                            {product.discountMinimumHour}H 이상 대여시 <span style={{ color: '#b39283' }}>{product.discountRate}% 할인</span>
+                        </li>
+                    }
+                </ul>
                 <div className='content-regions'>
                     <div>픽업 | 반납 장소</div>
                     {product.regions.slice(0, 3).map(r => {

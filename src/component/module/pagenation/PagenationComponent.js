@@ -89,6 +89,7 @@ const Wrapper = styled.div`
         width: 70px;
         height: 23px;
         padding: 5px;
+        background:white;
         border: 1px solid #e1e1e1;
         border-radius: 0;
         font-size: 11px;
@@ -122,10 +123,13 @@ const PagenationComponent = ({
     isFirst,
     isLast,
     pageIndex,
+    size,
     sizeElements,
     totalPages,
     totalElements,
     align,
+    onPrevEvent,
+    onNextEvent,
     ...props
 }) => {
     const navigate = useNavigate();
@@ -138,6 +142,10 @@ const PagenationComponent = ({
         }
 
         let pIndex = pageIndex + 1;
+
+        if (onPrevEvent && typeof onPrevEvent === 'function') {
+            onPrevEvent();
+        }
 
         navigate(qs.stringifyUrl({
             url: location.pathname,
@@ -158,6 +166,10 @@ const PagenationComponent = ({
 
         let pIndex = pageIndex + 1;
 
+        if (onNextEvent && typeof onNextEvent === 'function') {
+            onNextEvent();
+        }
+
         navigate(qs.stringifyUrl({
             url: location.pathname,
             query: {
@@ -167,6 +179,7 @@ const PagenationComponent = ({
         }), {
             replace: true
         })
+
     }
 
     const onActionChangeSize = (e) => {
@@ -193,7 +206,7 @@ const PagenationComponent = ({
                     <div className='flex-box'>
                         {sizeElements &&
                             <div className='select-box'>
-                                <select className='select-el' onChange={onActionChangeSize}>
+                                <select className='select-el' onChange={onActionChangeSize} value={size}>
                                     {sizeElements.map((r, index) => {
                                         return (
                                             <option key={index} value={r}>{r} 개 보기</option>

@@ -48,10 +48,12 @@ const StyledCheckbox = styled.div`
 `
 
 const Label = styled.span`
+    user-select: none;
     margin-left: 5px;
     font-weight: 500;
     font-size: ${props => props.labelSize ? props.labelSize : '14px'};
     color:#444;
+    cursor:pointer;
 `;
 
 /**
@@ -62,13 +64,14 @@ const Label = styled.span`
  * @param {String} param0.label default null
  * @param {String} param0.size default '16px'
  * @param {String} param0.labelSize default '14px'
+ * @param {Object} param0.style
+ * @param {Object} param0.labelStyle
  * @returns 
  */
 
-const CustomCheckbox = ({ className, checked, label, size, labelSize, ...props }) => (
+const CustomCheckbox = ({ className, checked, label, size, labelSize, style, labelStyle, ...props }) => (
     <label>
-        
-        <CheckboxContainer className={className}>
+        <CheckboxContainer className={className} style={{ ...style }}>
             <HiddenCheckbox
                 checked={checked}
                 {...props}
@@ -84,6 +87,9 @@ const CustomCheckbox = ({ className, checked, label, size, labelSize, ...props }
         </CheckboxContainer>
         {label &&
             <Label
+                style={{
+                    ...labelStyle
+                }}
                 labelSize={labelSize}
             >{label}</Label>
         }

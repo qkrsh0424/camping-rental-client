@@ -12,6 +12,7 @@ const Select = styled.select`
     -moz-appearance: none; 
     appearance: none;
     background:url('/assets/icon/drop_down_arrow_icon.svg') no-repeat 97% 50%/25px auto;
+    color:#505050;
     
     &:focus{
         outline: none;

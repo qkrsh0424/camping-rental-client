@@ -22,12 +22,12 @@ const Container = styled.div`
     }
 
     .slick-dots li.slick-active button:before {
-        color:white !important;
+        color:#b39283 !important;
         opacity: 1;
     }
 
     .slick-dots li button:before {
-        color:#fff;
+        color:#b39283 !important;
         opacity: 0.5;
         font-size: 12px;
     }

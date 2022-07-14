@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import { productCategoryDataConnect } from "../../data_connect/productCategoryDataConnect";
 import { productDataConnect } from "../../data_connect/productDataConnect";
 import { useCustomRouterHook } from "../../hooks/router/useCustomRouterHook";
@@ -9,6 +9,7 @@ import CategoryFieldComponent from "./category-field/CategoryField.component";
 import ProductListFieldComponent from "./product-list-field/ProductListField.component";
 
 export default function MainComponent(props) {
+    const scrollRef = useRef(null);
     const customRouter = useCustomRouterHook();
     const [productPage, dispatchProductPage] = useReducer(productPageReducer, initialProductPage);
     const [allCategories, dispatchAllCategories] = useReducer(allCategoriesReducer, initialAllCategories);
@@ -31,7 +32,7 @@ export default function MainComponent(props) {
                     categoryId: categoryId,
                     page: page,
                     size: size,
-                    displayYn:'y'
+                    displayYn: 'y'
                 }
                 await productDataConnect().searchPage({ params: params })
                     .then(res => {
@@ -74,6 +75,7 @@ export default function MainComponent(props) {
     return (
         <>
             <BannerFieldComponent />
+            <div ref={scrollRef}></div>
             <CategoryFieldComponent
                 categories={allCategories}
             />
@@ -82,7 +84,7 @@ export default function MainComponent(props) {
                     <>
                         <ProductListFieldComponent
                             allCategories={allCategories}
-                            products={productPage?.content}
+                            products={productPage?.content || []}
                         />
                         <PagenationComponent
                             style={{
@@ -92,10 +94,17 @@ export default function MainComponent(props) {
                             isFirst={productPage.first}
                             isLast={productPage.last}
                             pageIndex={productPage.number}
+                            size={customRouter.query?.size || 0}
                             sizeElements={[30, 50, 100]}
                             totalPages={productPage.totalPages}
                             totalElements={productPage.totalElements}
                             align={'center'}
+                            onPrevEvent={() => {
+                                scrollRef.current.scrollIntoView({ behavior: 'auto', block: 'start' });
+                            }}
+                            onNextEvent={() => {
+                                scrollRef.current.scrollIntoView({ behavior: 'auto', block: 'start' });
+                            }}
                         />
                     </>
                 )

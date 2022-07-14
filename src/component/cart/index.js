@@ -47,6 +47,9 @@ export default function MainComponent(props) {
                     productName: product.name,
                     thumbnailUri: product.thumbnailUri,
                     price: product.price,
+                    minimumRentalHour: product.minimumRentalHour,
+                    discountYn: product.discountYn,
+                    discountMinimumHour: product.discountMinimumHour,
                     discountRate: product.discountRate,
                     unit: cartItem.unit
                 })
@@ -61,6 +64,9 @@ export default function MainComponent(props) {
                         productName: product.name,
                         thumbnailUri: product.thumbnailUri,
                         price: product.price,
+                        minimumRentalHour: product.minimumRentalHour,
+                        discountYn: product.discountYn,
+                        discountMinimumHour: product.discountMinimumHour,
                         discountRate: product.discountRate,
                         unit: cartItem.unit
                     }
@@ -167,9 +173,9 @@ export default function MainComponent(props) {
                     (
                         <div
                             style={{
-                                textAlign:'center',
-                                fontWeight:'600',
-                                marginTop:'100px'
+                                textAlign: 'center',
+                                fontWeight: '600',
+                                marginTop: '100px'
                             }}
                         >장바구니가 비었습니다.</div>
                     )

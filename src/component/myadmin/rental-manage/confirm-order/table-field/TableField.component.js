@@ -7,34 +7,36 @@ import SingleBlockButton from "../../../../module/button/SingleBlockButton";
 import { useState } from 'react';
 import ConfirmModalComponent from "../../../../module/modal/ConfirmModalComponent";
 import { BrowserContainer, CardListWrapper, MobileContainer, TableBox, TableWrapper, PagenationContainer, BrowserButtonGroupWrapper, MobileButtonGroupWrapper } from "./TableField.styled";
-import styled from 'styled-components';
 import CustomCheckbox from "../../../../module/checkbox/CustomCheckbox";
 import { useMatch } from "react-router-dom";
 import ElementLoading from "../../../../module/loading/ElementLoading";
+import { useCustomRouterHook } from "../../../../../hooks/router/useCustomRouterHook";
 
 const __ext_calcTotalPrice = ({
     price,
     unit,
-    nights,
-    discountRate
+    diffHours,
+    discountRate,
+    discountMinimumHour
 }) => {
-    if (nights >= 2) {
+    if (diffHours >= discountMinimumHour) {
         /**
          * 할인율이 적용이 되었을때
-         * 가격 * 수량 * 박 * 할인율(%)
+         * 가격 * 수량 * 시간 * 할인율(%)
          */
-        return price * unit * nights * (1 - (discountRate / 100));
+        return price * unit * diffHours * (1 - (discountRate / 100));
     } else {
         /**
          * 할인율이 적용되지 않았을때
-         * 가격 * 수량 * 박
+         * 가격 * 수량 * 시간
          */
-        return price * unit * nights;
+        return price * unit * diffHours;
     }
 }
 
 export default function TableFieldComponent(props) {
     const statusMatch = useMatch('/myadmin/rental-manage/:status');
+    const customRouter = useCustomRouterHook();
     const [selectIds, setSelectIds] = useState([]);
     const [confirmOrderModalOpen, setConfirmOrderModalOpen] = useState(false);
     const [confirmReservationModalOpen, setConfirmReservationModalOpen] = useState(false);
@@ -242,6 +244,7 @@ export default function TableFieldComponent(props) {
                             isFirst={props.rentalOrderProductPage.first}
                             isLast={props.rentalOrderProductPage.last}
                             pageIndex={props.rentalOrderProductPage.number}
+                            size={customRouter.query?.size || 0}
                             sizeElements={[20, 50, 100]}
                             totalPages={props.rentalOrderProductPage.totalPages}
                             totalElements={props.rentalOrderProductPage.totalElements}
@@ -678,7 +681,9 @@ function CardList({
     return (
         <CardListWrapper>
             {rentalOrderProducts?.map((r, index) => {
-                let nights = dateFormatUtils().getDiffDate(r.rentalOrderInfo.pickupDate, r.rentalOrderInfo.returnDate);
+                let pDate = dateFormatUtils().dateFromDateAndHH_mm(r.rentalOrderInfo.pickupDate, r.rentalOrderInfo.pickupTime);
+                let rDate = dateFormatUtils().dateFromDateAndHH_mm(r.rentalOrderInfo.returnDate, r.rentalOrderInfo.returnTime);
+                let diffHours = dateFormatUtils().getDiffHoursFromDates(pDate, rDate);
                 return (
                     <div
                         key={r.id}
@@ -712,14 +717,15 @@ function CardList({
                             >{r.productName}</div>
                             <div
                                 className='text-box'
-                            >{dateFormatUtils().dateToYYMMDD(r.rentalOrderInfo.pickupDate, 'Invalid Date')} {r.rentalOrderInfo.pickupTime} ~ {dateFormatUtils().dateToYYMMDD(r.rentalOrderInfo.returnDate, 'Invalid Date')} {r.rentalOrderInfo.returnTime} <span style={{ color: '#b39283', fontWeight: '600' }}>({nights}박)</span></div>
+                            >{dateFormatUtils().dateToYYMMDD(r.rentalOrderInfo.pickupDate, 'Invalid Date')} {r.rentalOrderInfo.pickupTime} ~ {dateFormatUtils().dateToYYMMDD(r.rentalOrderInfo.returnDate, 'Invalid Date')} {r.rentalOrderInfo.returnTime} <span style={{ color: '#b39283', fontWeight: '600' }}>({diffHours}H)</span></div>
                             <div
                                 className='text-box'
-                            >{numberFormatHandler().numberWithCommas(r.price || 0)}원 / <span style={{ color: '#b39283', fontWeight: '600' }}>{r.unit}개</span> / {nights >= 2 ? r.discountRate : '0'}% / <span style={{ color: '#b39283', fontWeight: '600' }}>합계 {
+                            >{numberFormatHandler().numberWithCommas(r.price || 0)}원 / <span style={{ color: '#b39283', fontWeight: '600' }}>{r.unit}개</span> / {diffHours >= r.discountMinimumHour ? r.discountRate : '0'}% / <span style={{ color: '#b39283', fontWeight: '600' }}>합계 {
                                 numberFormatHandler().numberWithCommas(__ext_calcTotalPrice({
                                     price: r.price,
                                     unit: r.unit,
-                                    nights: nights,
+                                    diffHours: diffHours,
+                                    discountMinimumHour: r.discountMinimumHour,
                                     discountRate: r.discountRate
                                 }) || 0)
                             } 원</span>
@@ -767,7 +773,10 @@ function Table({
                     />
                     <tbody>
                         {rentalOrderProducts?.map((r, index) => {
-                            let nights = dateFormatUtils().getDiffDate(r.rentalOrderInfo.pickupDate, r.rentalOrderInfo.returnDate);
+                            let pDate = dateFormatUtils().dateFromDateAndHH_mm(r.rentalOrderInfo.pickupDate, r.rentalOrderInfo.pickupTime);
+                            let rDate = dateFormatUtils().dateFromDateAndHH_mm(r.rentalOrderInfo.returnDate, r.rentalOrderInfo.returnTime);
+                            let diffHours = dateFormatUtils().getDiffHoursFromDates(pDate, rDate);
+
                             return (
                                 <tr
                                     key={r.id}
@@ -804,17 +813,18 @@ function Table({
                                     <td>{dateFormatUtils().dateToYYMMDD(r.rentalOrderInfo.returnDate, 'Invalid Date')} {r.rentalOrderInfo.returnTime}</td>
                                     <td>{r.rentalOrderInfo.pickupPlace}</td>
                                     <td>{r.rentalOrderInfo.returnPlace}</td>
-                                    <td>{nights} 박</td>
+                                    <td>{diffHours}H</td>
                                     <td>{numberFormatHandler().numberWithCommas(r.price || 0)} 원</td>
-                                    <td>{nights >= 2 ? r.discountRate : '0'} %</td>
+                                    <td>{diffHours >= r.discountMinimumHour ? r.discountRate : '0'} %</td>
                                     <td>
 
                                         {
                                             numberFormatHandler().numberWithCommas(__ext_calcTotalPrice({
                                                 price: r.price,
                                                 unit: r.unit,
-                                                nights: nights,
-                                                discountRate: r.discountRate
+                                                diffHours: diffHours,
+                                                discountRate: r.discountRate,
+                                                discountMinimumHour: r.discountMinimumHour
                                             }) || 0)
                                         } 원
                                     </td>
@@ -957,7 +967,7 @@ const TABLE_HEADERS = [
         name: '가격'
     },
     {
-        name: '할인율'
+        name: '적용된 할인'
     },
     {
         name: '총 가격'

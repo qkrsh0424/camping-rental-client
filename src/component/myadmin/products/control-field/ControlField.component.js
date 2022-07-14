@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { numberFormatHandler } from '../../../../utils/numberFormatHandler';
 import valueUtils from '../../../../utils/valueUtils';
 import SingleBlockButton from '../../../module/button/SingleBlockButton';
+import CustomCheckbox from '../../../module/checkbox/CustomCheckbox';
 import CommonModalComponent from '../../../module/modal/CommonModalComponent';
 import CustomSelect from '../../../module/select/CustomSelect';
 import { useImageFileUploaderHook } from '../../../module/uploader/useImageFileUploaderHook';
@@ -245,20 +246,20 @@ function AddProductModal({
     const __product = {
         action: {
             openFileUploader: (e) => {
-                if (product.images.length >= 10) {
+                if (product.productImages.length >= 10) {
                     alert('이미지는 최대 10개 까지 등록 가능합니다.');
                     return;
                 }
                 fileUploaderRef.current.click();
             },
             deleteImage: (imageId) => {
-                let newImages = [...product.images.filter(r => r.id !== imageId)];
+                let newImages = [...product.productImages.filter(r => r.id !== imageId)];
 
                 dispatchProduct({
                     type: 'SET_DATA',
                     payload: {
                         ...product,
-                        images: newImages
+                        productImages: newImages
                     }
                 })
             }
@@ -308,10 +309,53 @@ function AddProductModal({
                     }
                 })
             },
+            minimumRentalHour: (e) => {
+                let value = e.target.value;
+
+                if (!numberFormatHandler().checkNumberOnlyFormat(value) || value < 0 || value > 10000) {
+                    return;
+                }
+
+                dispatchProduct({
+                    type: 'SET_DATA',
+                    payload: {
+                        ...product,
+                        minimumRentalHour: value
+                    }
+                })
+            },
+            discountYn: (e) => {
+                let checked = e.target.checked;
+
+                let discountYn = checked ? 'y' : 'n';
+
+                dispatchProduct({
+                    type: 'SET_DATA',
+                    payload: {
+                        ...product,
+                        discountYn: discountYn
+                    }
+                })
+            },
+            discountMinimumHour: (e) => {
+                let value = e.target.value;
+
+                if (!numberFormatHandler().checkNumberOnlyFormat(value) || value < 0 || value > 10000) {
+                    return;
+                }
+
+                dispatchProduct({
+                    type: 'SET_DATA',
+                    payload: {
+                        ...product,
+                        discountMinimumHour: value
+                    }
+                })
+            },
             pushImage: async (e) => {
                 e.preventDefault();
 
-                if (product.images.length >= 10) {
+                if (product.productImages.length >= 10) {
                     alert('이미지는 최대 10개 까지 등록 가능합니다.');
                     return;
                 }
@@ -321,8 +365,8 @@ function AddProductModal({
 
                 let imageInfos = await __reqUploadImageFile(e);
 
-                let images = [...product.images];
-                images = images.concat(imageInfos.map(r => {
+                let productImages = [...product.productImages];
+                productImages = productImages.concat(imageInfos.map(r => {
                     return {
                         ...r,
                         productId: null
@@ -333,7 +377,7 @@ function AddProductModal({
                     type: 'SET_DATA',
                     payload: {
                         ...product,
-                        images: images
+                        productImages: productImages
                     }
                 })
             }
@@ -341,7 +385,7 @@ function AddProductModal({
         submit: {
             confirm: (e) => {
                 e.preventDefault();
-                if (product.images.length <= 0 || product.images.length > 10) {
+                if (product.productImages.length <= 0 || product.productImages.length > 10) {
                     alert('이미지는 1개 이상 10개 이하로 등록할 수 있습니다.');
                     return;
                 }
@@ -361,14 +405,28 @@ function AddProductModal({
                     return;
                 }
 
-                if (product.discountRate < 0 || product.discountRate > 100) {
-                    alert('연박 할인을 정확하게 입력해 주세요.');
+                if (product.minimumRentalHour <= 0) {
+                    alert('최소 대여 가능 시간을 정확하게 입력해 주세요.');
                     return;
+                }
+
+                if (product.discountYn === 'y') {
+                    if (product.discountMinimumHour <= 0 || product.discountMinimumHour > 10000) {
+                        alert('최소 할인 적용 시간을 정확하게 입력해 주세요.');
+                        return;
+                    }
+
+                    if (product.discountRate <= 0 || product.discountRate > 100) {
+                        alert('할인율을 정확하게 입력해 주세요.');
+                        return;
+                    }
                 }
 
                 let body = {
                     ...product,
                     price: valueUtils.isEmptyNumbers(parseInt(product.price)) ? 0 : parseInt(product.price),
+                    minimumRentalHour: valueUtils.isEmptyNumbers(parseInt(product.minimumRentalHour)) ? 1 : parseInt(product.minimumRentalHour),
+                    discountMinimumHour: valueUtils.isEmptyNumbers(parseInt(product.discountMinimumHour)) ? 0 : parseInt(product.discountMinimumHour),
                     discountRate: valueUtils.isEmptyNumbers(parseInt(product.discountRate)) ? 0 : parseInt(product.discountRate)
                 }
 
@@ -387,9 +445,9 @@ function AddProductModal({
                             borderBottom: '1px solid #e0e0e0'
                         }}
                     >
-                        <div className='input-label'>이미지({product.images.length} / 10)</div>
+                        <div className='input-label'>이미지({product.productImages.length} / 10)</div>
                         <div className='image-list-wrapper'>
-                            {product.images.map(r => {
+                            {product.productImages.map(r => {
                                 return (
                                     <div key={r.id} className='image-box'>
                                         <img
@@ -463,26 +521,86 @@ function AddProductModal({
                         </CustomSelect>
                     </div>
                     <div className='input-box'>
-                        <div className='input-label'>가격(원)</div>
+                        <div className='input-label'>시간당 가격(원)</div>
                         <input
                             type='text'
                             className='input-item'
                             name='price'
                             value={numberFormatHandler().numberWithCommas(product.price) || ''}
                             onChange={__product.change.price}
+                            required
                         ></input>
                     </div>
                     <div className='input-box'>
-                        <div className='input-label'>연박 할인(%)</div>
+                        <div className='input-label'>최소 대여 가능 시간</div>
                         <input
                             type='text'
                             className='input-item'
-                            name='discountRate'
-                            value={product.discountRate || ''}
-                            max={100}
-                            min={0}
-                            onChange={__product.change.discountRate}
+                            name='minimumRentalHour'
+                            value={product.minimumRentalHour || ''}
+                            onChange={__product.change.minimumRentalHour}
+                            required
                         ></input>
+                    </div>
+                    <div className='input-box'>
+                        <div>
+                            <CustomCheckbox
+                                label={'할인 적용하기'}
+                                checked={product.discountYn === 'y' ? true : false}
+                                onChange={__product.change.discountYn}
+                                labelStyle={{
+                                    color: '#000000de'
+                                }}
+                            />
+                        </div>
+                        {product.discountYn === 'y' &&
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        flex: 1
+                                    }}
+                                >
+                                    <input
+                                        type='text'
+                                        className='input-item'
+                                        name='discountMinimumHour'
+                                        value={product.discountMinimumHour || ''}
+                                        max={100}
+                                        min={0}
+                                        placeholder={''}
+                                        onChange={__product.change.discountMinimumHour}
+                                        style={{
+                                            textAlign: 'center'
+                                        }}
+                                    ></input>
+                                </div>
+                                <div style={{ fontSize: '14px', fontWeight: '500' }}>시간 이상 대여시</div>
+                                <div
+                                    style={{
+                                        flex: 1,
+                                    }}
+                                >
+                                    <input
+                                        type='text'
+                                        className='input-item'
+                                        name='discountRate'
+                                        value={product.discountRate || ''}
+                                        max={100}
+                                        min={0}
+                                        onChange={__product.change.discountRate}
+                                        style={{
+                                            textAlign: 'center'
+                                        }}
+                                    ></input>
+                                </div>
+                                <div style={{ fontSize: '14px', fontWeight: '500' }}>(%) 할인</div>
+                            </div>
+                        }
                     </div>
                     <div className='input-box'>
                         <div className='input-label'>설명</div>
@@ -516,9 +634,12 @@ const initialProduct = {
     name: '',
     description: '',
     price: '',
+    minimumRentalHour: '1',
+    discountYn: 'n',
+    discountMinimumHour: '',
     discountRate: '',
     productCategoryId: '',
-    images: [] // {id, fileOriginName, fileStorageUri, fileFullUri, serviceUrl, filePath, fileExtension, madeAt, size}
+    productImages: [] // {id, fileOriginName, fileStorageUri, fileFullUri, serviceUrl, filePath, fileExtension, madeAt, size}
 }
 
 const productReducer = (state, action) => {

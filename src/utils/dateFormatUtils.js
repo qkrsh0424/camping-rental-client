@@ -24,6 +24,54 @@ const dateFormatUtils = () => {
 
             return Math.floor(diffDay) <= 0 ? 1 : Math.floor(diffDay);
         },
+        getDiffDateIncludeZero: function (startDate, endDate) {
+            let diffTime = new Date(endDate) - new Date(startDate);
+            let diffDay = diffTime / (1000 * 60 * 60 * 24);
+
+            return Math.floor(diffDay);
+        },
+        dateFromDateAndHH_mm: function (date, time) {
+            let pDateTime = `${moment(new Date(date)).format('yyyy-MM-DD')}T${time}:00`;
+            return new Date(pDateTime);
+        },
+        getDiffHoursFromDates: function (fDate, sDate) {
+            let firstDate = moment(new Date(fDate));
+            let secondDate = moment(new Date(sDate));
+
+            return Math.abs(secondDate.diff(firstDate, 'hours'));
+        },
+        getDiffHoursFromDatesAllowNegative: function (fDate, sDate) {
+            let firstDate = moment(new Date(fDate));
+            let secondDate = moment(new Date(sDate));
+
+            return secondDate.diff(firstDate, 'hours');
+        },
+        getDiffDaysFromDates: function (fDate, sDate) {
+            let firstDate = moment(new Date(fDate));
+            let secondDate = moment(new Date(sDate));
+
+            return Math.abs(secondDate.diff(firstDate, 'days'));
+        },
+        getDiffMillisecondFromDatesNegative: function (fDate, sDate) {
+            let firstDate = moment(new Date(fDate));
+            let secondDate = moment(new Date(sDate));
+
+            return secondDate.diff(firstDate, 'millisecond');
+        },
+        getDiffDaysFromDatesNonZero: function (fDate, sDate) {
+            let firstDate = moment(new Date(fDate));
+            let secondDate = moment(new Date(sDate));
+
+            let hours = Math.abs(secondDate.diff(firstDate, 'hours'));
+            let days = Math.abs(secondDate.diff(firstDate, 'days'));
+
+            if (hours % 24 > 0) {
+                return days + 1;
+            }
+
+            return days;
+
+        },
         getStartDate: function (date) {
             let cdate = new Date(date);
             cdate.setHours(0);

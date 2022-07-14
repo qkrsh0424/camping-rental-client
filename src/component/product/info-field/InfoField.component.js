@@ -77,9 +77,21 @@ const ContentWrapper = styled.div`
         }
     }
 
+    .rentalHour-box{
+        display: flex;
+        justify-content: flex-end;
+        font-size: 18px;
+        font-weight: 600;
+
+        @media all and (max-width:992px){
+            font-size: 16px;
+        }
+    }
+
     .price-box{
         display: flex;
         justify-content: flex-end;
+        margin-top: 10px;
     }
     
     .price-box>div{
@@ -92,6 +104,27 @@ const ContentWrapper = styled.div`
     }
 
     .price-box>div:nth-last-child(1){
+        display: flex;
+        justify-content: flex-end;
+        width: 200px;
+    }
+
+    .price-box_24h{
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 10px;
+    }
+    
+    .price-box_24h>div{
+        font-size: 16px;
+        font-weight: 600;
+
+        @media all and (max-width:992px){
+            font-size: 14px;
+        }
+    }
+
+    .price-box_24h>div:nth-last-child(1){
         display: flex;
         justify-content: flex-end;
         width: 200px;
@@ -309,25 +342,43 @@ export default function InfoFieldComponent(props) {
                     </div>
                 </ContentWrapper>
                 <ContentWrapper>
-                    <div className='price-box'>
+                </ContentWrapper>
+                <ContentWrapper>
+                    <div
+                        className='rentalHour-box'
+                    >
+                        최소 대여 가능 시간 {props.product.minimumRentalHour}H
+                    </div>
+                    <div
+                        className='price-box'
+                    >
                         <div>
-                            1박 가격
+                            가격(1시간)
                         </div>
                         <div>
                             {numberFormatHandler().numberWithCommas(props.product.price || 0)} 원
                         </div>
                     </div>
+                    {props.product.discountYn === 'y' &&
+                        <div
+                            className='price-box_24h'
+                        >
+                            <div>
+                                {props.product.discountMinimumHour}H 이상 대여시
+                            </div>
+                            <div>
+                                {props.product.discountRate} % 할인
+                            </div>
+                        </div>
+                    }
                     <div
-                        className='price-box'
-                        style={{
-                            marginTop: '10px'
-                        }}
+                        className='price-box_24h'
                     >
                         <div>
-                            연박 할인
+                            24H 기준 가격
                         </div>
                         <div>
-                            {props.product.discountRate} %
+                            {numberFormatHandler().numberWithCommas((props.product.price * 24) || 0)} 원
                         </div>
                     </div>
                 </ContentWrapper>
@@ -361,10 +412,9 @@ function AddCartModal({
     product,
     onActionCloseModal
 }) {
-    // const [cartList, setCartList] = useLocalStorage('cart-list-v2', []);
     const [cartList, setCartList] = useCartListLocalStorage();
     const [unit, setUnit] = useState(1);
-    
+
     const __handle = {
         change: {
             unit: (e) => {
