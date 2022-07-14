@@ -16,10 +16,11 @@ const __ext_calcTotalPrice = ({
     price,
     unit,
     diffHours,
+    discountYn,
     discountRate,
     discountMinimumHour
 }) => {
-    if (diffHours >= discountMinimumHour) {
+    if (discountYn === 'y' && (diffHours >= discountMinimumHour)) {
         /**
          * 할인율이 적용이 되었을때
          * 가격 * 수량 * 시간 * 할인율(%)
@@ -720,11 +721,12 @@ function CardList({
                             >{dateFormatUtils().dateToYYMMDD(r.rentalOrderInfo.pickupDate, 'Invalid Date')} {r.rentalOrderInfo.pickupTime} ~ {dateFormatUtils().dateToYYMMDD(r.rentalOrderInfo.returnDate, 'Invalid Date')} {r.rentalOrderInfo.returnTime} <span style={{ color: '#b39283', fontWeight: '600' }}>({diffHours}H)</span></div>
                             <div
                                 className='text-box'
-                            >{numberFormatHandler().numberWithCommas(r.price || 0)}원 / <span style={{ color: '#b39283', fontWeight: '600' }}>{r.unit}개</span> / {diffHours >= r.discountMinimumHour ? r.discountRate : '0'}% / <span style={{ color: '#b39283', fontWeight: '600' }}>합계 {
+                            >{numberFormatHandler().numberWithCommas(r.price || 0)}원 / <span style={{ color: '#b39283', fontWeight: '600' }}>{r.unit}개</span> / {r.discountYn === 'y' && (diffHours >= r.discountMinimumHour) ? r.discountRate : '0'}% / <span style={{ color: '#b39283', fontWeight: '600' }}>합계 {
                                 numberFormatHandler().numberWithCommas(__ext_calcTotalPrice({
                                     price: r.price,
                                     unit: r.unit,
                                     diffHours: diffHours,
+                                    discountYn: r.discountYn,
                                     discountMinimumHour: r.discountMinimumHour,
                                     discountRate: r.discountRate
                                 }) || 0)
@@ -815,7 +817,7 @@ function Table({
                                     <td>{r.rentalOrderInfo.returnPlace}</td>
                                     <td>{diffHours}H</td>
                                     <td>{numberFormatHandler().numberWithCommas(r.price || 0)} 원</td>
-                                    <td>{diffHours >= r.discountMinimumHour ? r.discountRate : '0'} %</td>
+                                    <td>{r.discountYn === 'y' && (diffHours >= r.discountMinimumHour) ? r.discountRate : '0'} %</td>
                                     <td>
 
                                         {
@@ -823,6 +825,7 @@ function Table({
                                                 price: r.price,
                                                 unit: r.unit,
                                                 diffHours: diffHours,
+                                                discountYn: r.discountYn,
                                                 discountRate: r.discountRate,
                                                 discountMinimumHour: r.discountMinimumHour
                                             }) || 0)

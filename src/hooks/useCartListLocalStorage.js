@@ -10,7 +10,7 @@ function getStorageValue(key, defaultValue) {
     }
 }
 
-const key = 'cart-list-v2';
+const key = 'cart-list-v3';
 
 export const useCartListLocalStorage = () => {
     const value = useSelector(state => state.cartListLocalStorage);

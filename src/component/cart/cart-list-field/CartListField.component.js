@@ -457,12 +457,12 @@ function OrderFormModal({
             totalPrice: ({ diffHours }) => {
                 let totalPrice = 0;
                 aggregatedProduct.cartProducts?.forEach(r => {
-                    totalPrice += __handle.return.productOrderPrice({ price: r.price, unit: r.unit, discountRate: r.discountRate, diffHours: diffHours, discountMinimumHour: r.discountMinimumHour });
+                    totalPrice += __handle.return.productOrderPrice({ price: r.price, unit: r.unit, discountYn: r.discountYn, discountRate: r.discountRate, diffHours: diffHours, discountMinimumHour: r.discountMinimumHour });
                 });
                 return totalPrice;
             },
-            productOrderPrice: ({ price, unit, diffHours, discountRate, discountMinimumHour }) => {
-                if (diffHours >= discountMinimumHour) {
+            productOrderPrice: ({ price, unit, diffHours, discountYn, discountRate, discountMinimumHour }) => {
+                if (discountYn === 'y' && (diffHours >= discountMinimumHour)) {
                     return (price * unit * diffHours * (1 - (discountRate / 100)));
                 } else {
                     return price * unit * diffHours;
@@ -594,6 +594,7 @@ function OrderFormModal({
                         productName: r.productName,
                         thumbnailUri: r.thumbnailUri,
                         price: r.price,
+                        discountYn: r.discountYn,
                         discountMinimumHour: r.discountMinimumHour,
                         discountRate: r.discountRate,
                         unit: r.unit,
@@ -620,7 +621,6 @@ function OrderFormModal({
     }
 
     if (orderConfirmationFlag) {
-        let nights = dateFormatUtils().getDiffDate(orderBasicInfo.pickupDate, orderBasicInfo.returnDate);
         let pDate = dateFormatUtils().dateFromDateAndHH_mm(orderBasicInfo.pickupDate, orderBasicInfo.pickupTime);
         let rDate = dateFormatUtils().dateFromDateAndHH_mm(orderBasicInfo.returnDate, orderBasicInfo.returnTime);
         let diffHours = dateFormatUtils().getDiffHoursFromDates(pDate, rDate);
@@ -661,11 +661,11 @@ function OrderFormModal({
                 <LineBreakerBottom></LineBreakerBottom>
                 <OrderFormConfirmationContentBox>
                     {aggregatedProduct?.cartProducts.map(r => {
-                        let price = __handle.return.productOrderPrice({ price: r.price, unit: r.unit, discountRate: r.discountRate, diffHours: diffHours, discountMinimumHour: r.discountMinimumHour });
+                        let price = __handle.return.productOrderPrice({ price: r.price, unit: r.unit, discountYn: r.discountYn, discountRate: r.discountRate, diffHours: diffHours, discountMinimumHour: r.discountMinimumHour });
                         return (
                             <div className='item-box' key={r.cartId}>
                                 <div className='item-name'>{r.productName} x {r.unit} 개 x ({diffHours}H)</div>
-                                {diffHours >= r.discountMinimumHour &&
+                                {r.discountYn === 'y' && (diffHours >= r.discountMinimumHour) &&
                                     <>
                                         <div className='item-discounted'>{r.discountRate}% 할인 적용!!</div>
                                     </>
