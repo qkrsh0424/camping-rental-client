@@ -89,10 +89,10 @@ function App() {
                     <Route path='/' element={<HomePage />}></Route>
                     <Route path='/product' element={<ProductPage />}></Route>
                     <Route path='/cart' element={<CartPage />}></Route>
-                    <Route path='/write' element={<WritePage />}></Route>
+                    {/* <Route path='/write' element={<WritePage />}></Route>
                     <Route path='/update' element={<UpdatePage />}></Route>
                     <Route path='/search/order' element={<SearchOrderPage />}></Route>
-                    <Route path='/search/item' element={<SearchItemPage />}></Route>
+                    <Route path='/search/item' element={<SearchItemPage />}></Route> */}
                     <Route path='/login' element={<LoginPage />}></Route>
                     <Route path='/signup' element={<SignupPage />}></Route>
                     <Route path='/room' element={<RoomPage />}></Route>
