@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { GlobalCommonBodyContainer } from '../../../globalStyledComponent';
+import { GlobalCommonBodyContainer } from '../../../../globalStyledComponent';
 
 const Wrapper = styled.div`
     font-size: 30px;
@@ -15,7 +15,7 @@ export default function HeadFieldComponent(props) {
         <>
             <GlobalCommonBodyContainer>
                 <Wrapper>
-                    장바구니
+                    주문 내역 조회
                 </Wrapper>
             </GlobalCommonBodyContainer>
         </>
